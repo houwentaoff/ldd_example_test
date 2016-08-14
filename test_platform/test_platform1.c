@@ -61,12 +61,20 @@ platform_add_devices(smdkc210_devices, ARRAY_SIZE(smdkc210_devices));
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 
+/**
+ * @brief platform device的私有数据
+ */
 struct test_data {
     const char * const str;
 };
 struct test_data test_platform_data = {
     .str  = "this is test platform data!"
 };
+/**
+ * @brief 不加会导致rmsmod时候内核报错
+ *
+ * @param dev
+ */
 static void platform_test_release(struct device * dev)
 {
     return ;
@@ -81,7 +89,7 @@ struct platform_device test_device = {
 
 static int dm9000_drv_remove(struct platform_device *pdev)
 {
-    struct test_data *pdata = pdev->dev.platform_data;
+    struct test_data *pdata = pdev->dev.platform_data;// platform的void data
     char *rbuff = platform_get_drvdata(pdev);
 
     printk("==>%s data[%s]\n", __func__, pdata->str);
@@ -90,6 +98,7 @@ static int dm9000_drv_remove(struct platform_device *pdev)
     if (rbuff) {
         kfree(rbuff);
     }
+    platform_set_drvdata(pdev, NULL);
     return 0;
 }
 static int dm90001_probe(struct platform_device *pdev)
