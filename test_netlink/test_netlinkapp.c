@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     int state_smg = 0;
     // Create a socket
 
-    sock_fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_TEST);
+    sock_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_TEST);
     if(sock_fd == -1){
         printf("error getting socket: %s", strerror(errno));
         return -1;
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 
     memset(&msg,0,sizeof(msg));
     memset(&src_addr, 0, sizeof(src_addr));
-    src_addr.nl_family = AF_NETLINK;
+    src_addr.nl_family = PF_NETLINK;
     src_addr.nl_pid = getpid(); // self pid
 
     src_addr.nl_groups = 0; // multi cast
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     }
 
     memset(&dest_addr,0,sizeof(dest_addr));
-    dest_addr.nl_family = AF_NETLINK;
+    dest_addr.nl_family = PF_NETLINK;
     dest_addr.nl_pid = 0;
     dest_addr.nl_groups = 0;
 
