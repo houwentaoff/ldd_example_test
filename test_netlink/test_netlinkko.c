@@ -8,8 +8,7 @@
 #include <net/sock.h>
 
 #define NETLINK_TEST 25
-#define MAX_MSGSIZE 1024
-int stringlength(char *s);
+#define MAX_MSGSIZE 100
 void sendnlmsg(char * message);
 int pid;
 int err;
@@ -20,7 +19,7 @@ void sendnlmsg(char *message)
 {
     struct sk_buff *skb_1 = NULL;
     struct nlmsghdr *nlh = NULL;
-    int len = NLMSG_SPACE(MAX_MSGSIZE);
+    int len = NLMSG_SPACE(MAX_MSGSIZE);//4字节对齐的长度
     int slen = 0;
     if(!message || !nl_sk)
     {
@@ -38,23 +37,12 @@ void sendnlmsg(char *message)
     NETLINK_CB(skb_1).dst_group = 0;
 
     message[slen]= '\0';
-    memcpy(NLMSG_DATA(nlh),message,slen+1);
+    memcpy(NLMSG_DATA(nlh),message, 1);//nlmsg的data部分指针
     printk("my_net_link:send message '%s'.\n",(char *)NLMSG_DATA(nlh));
+    printk("len[%d]\n", len);
 
     netlink_unicast(nl_sk,skb_1,pid,MSG_DONTWAIT);
 
-}
-
-int stringlength(char *s)
-{
-    int slen = 0;
-
-
-    for(; *s; s++){
-        slen++;
-    }
-
-    return slen;
 }
 
 static void nl_data_ready(struct sk_buff *__skb)
@@ -66,6 +54,7 @@ static void nl_data_ready(struct sk_buff *__skb)
     struct completion cmpl;
     int i=10;
     skb = skb_get (__skb);
+    printk("%d\n", NLMSG_SPACE(0));
     if(skb->len >= NLMSG_SPACE(0))
     {
         nlh = nlmsg_hdr(skb);
@@ -73,12 +62,15 @@ static void nl_data_ready(struct sk_buff *__skb)
         memcpy(str, NLMSG_DATA(nlh), sizeof(str));
         printk("Message received:%s\n",str) ;
         pid = nlh->nlmsg_pid;
+        sendnlmsg(send_buf);
+#if 0
         while(i--)
         {
             init_completion(&cmpl);
             wait_for_completion_timeout(&cmpl, HZ);// * HZ);
             sendnlmsg(send_buf);
         }
+#endif
         flag = 1;
         kfree_skb(skb);
     }
