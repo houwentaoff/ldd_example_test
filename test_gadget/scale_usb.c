@@ -200,7 +200,7 @@ static struct scale_dev scale;
 static struct usb_device_descriptor device_desc = {
     .bLength =        0x12,
     .bDescriptorType =    0x01,
-    .bcdUSB =        cpu_to_le16(0x0200),
+    .bcdUSB =        cpu_to_le16(0x0110),//cpu_to_le16(0x0200),
     .bDeviceClass =       0x00,
     .bDeviceSubClass =    0x00,
     .bDeviceProtocol =    0x00,
@@ -327,7 +327,7 @@ static struct usb_endpoint_descriptor hs_ep_out_desc = {
 static struct usb_qualifier_descriptor dev_qualifier = {
     .bLength =        sizeof dev_qualifier,
     .bDescriptorType =    USB_DT_DEVICE_QUALIFIER,
-    .bcdUSB =        cpu_to_le16(0x0200),
+    .bcdUSB =        cpu_to_le16(0x0110),
     .bDeviceClass =        USB_CLASS_COMM,
     .bNumConfigurations =    1
 };
@@ -369,6 +369,7 @@ static struct usb_string strings_dev[] = {
 #endif
 /* static strings, in UTF-8 */
 static struct usb_string strings [] = {
+    {0, "joy string test!"},          //usb_gadget_get_string req must 
     [STRING_MANUFACTURER].s = manufacturer,
     [STRING_PRODUCT].s = product_desc,
     [STRING_SERIALNUM].s = serial_num,
@@ -1251,12 +1252,18 @@ static int scale_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *
                 break;
 
             case USB_DT_STRING:
-                usb_dbg(dev,"-->%s USB_DT_STRING,%d\n", __func__, wValue);
+                usb_dbg(dev,"-->%s USB_DT_STRING,0x%x\n", __func__, wValue);
                 value = usb_gadget_get_string(&stringtab,
                         wValue & 0xff, req->buf);
                 if (value >= 0)
                     value = min(wLength, (u16) value);
-                usb_dbg(dev,"-->%s value %d buf[%s]\n", __func__, value, req->buf);
+                usb_dbg(dev,"-->%s value %d buf+2[%s] table.strings id[%d]\n",
+                        __func__, value, &req->buf[2], wValue & 0xff);
+                usb_dbg(NULL, "-->%s iMan[%d][%s] iPro[%d][%s] iSer[%d][%s]\n",
+                        __func__,
+                        device_desc.iManufacturer, strings[STRING_MANUFACTURER].s,
+                        device_desc.iProduct, strings[STRING_PRODUCT].s,
+                        device_desc.iSerialNumber, strings[STRING_SERIALNUM].s);
                 break;
             }
             break;
@@ -1314,7 +1321,7 @@ static int scale_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *
 
             value = (pnp_string[0]<<8)|pnp_string[1];
             memcpy(req->buf, pnp_string, value);
-            usb_dbg(dev, "-->%s 1284 PNP String: %x %s\n", __func__, value,
+            usb_err(dev, "-->%s 1284 PNP String: %x %s\n", __func__, value,
                     &pnp_string[2]);
             break;
 
@@ -1444,7 +1451,7 @@ static int scale_bind(struct usb_composite_dev *cdev)
     struct scale_dev *dev;
     struct usb_ep    *in_ep, *out_ep;
     int         status = -ENOMEM;
-    int         gcnum;
+    int         gcnum,id;
     size_t         len;
     u32         i;
     struct usb_request    *req;
@@ -1472,6 +1479,30 @@ static int scale_bind(struct usb_composite_dev *cdev)
         usb_err(dev, "Failed to open char device\n");
         goto fail;
     }
+	/* Allocate string descriptor numbers ... note that string
+	 * contents can be overridden by the composite_dev glue.
+	 */
+	id = usb_string_id(cdev);
+	if (id < 0)
+		return id;
+	strings[STRING_MANUFACTURER].id = id;
+	device_desc.iManufacturer = id;
+
+	id = usb_string_id(cdev);
+	if (id < 0)
+		return id;
+	strings[STRING_PRODUCT].id = id;
+	device_desc.iProduct = id;
+	id = usb_string_id(cdev);
+	if (id < 0)
+		return id;
+	strings[STRING_SERIALNUM].id = id;
+	device_desc.iSerialNumber = id;
+    usb_dbg(NULL, "-->%s iMan[%d][%s] iPro[%d][%s] iSer[%d][%s]\n",
+            __func__,
+            device_desc.iManufacturer, strings[STRING_MANUFACTURER].s,
+            device_desc.iProduct, strings[STRING_PRODUCT].s,
+            device_desc.iSerialNumber, strings[STRING_SERIALNUM].s);
 #if 1
     gcnum = usb_gadget_controller_number(gadget);
     if (gcnum >= 0) {
@@ -1837,6 +1868,7 @@ static int __init init(void)
         class_destroy(usb_gadget_class);
         return status;
     }
+    composite_driver.speed = USB_SPEED_FULL;
     composite_driver.function = driver_desc;
 	composite_driver.setup = scale_setup;
 	composite_driver.disconnect = scale_disconnect;
