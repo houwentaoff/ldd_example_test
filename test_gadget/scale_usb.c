@@ -76,6 +76,7 @@ MODULE_VERSION("1.0");
 
 /*-------------------------------------------------------------------------*/
 #define NEW_STYLE
+#define DMX512_DUMMY           //test dmx512
 
 #define DRIVER_DESC        "scale_usb"//"Scale USB"
 #define DRIVER_VERSION        "2016.05.10"
@@ -87,8 +88,8 @@ static char driver_desc [] = {DRIVER_DESC};
 /* DO NOT REUSE THESE IDs with a protocol-incompatible driver!!  Ever!!
  * Instead:  allocate your own, using normal USB-IF procedures.
  */
-#define PRINTER_VENDOR_NUM    0x6244        /* xx */
-#define PRINTER_PRODUCT_NUM    0x0431        /* Linux-USB xx Gadget */
+#define PRINTER_VENDOR_NUM    0x6244//0x8888//18D1//android 0x6244        /* xx */
+#define PRINTER_PRODUCT_NUM   0x0431//0x0001//android 0x0431        /* Linux-USB xx Gadget */
 
 static dev_t scale_devno;
 //int is_connect = 0;
@@ -136,7 +137,7 @@ static struct scale_dev scale;
 
 /* Number of requests to allocate per endpoint, not used for ep0. */
 #define QLEN    10
-
+#undef CONFIG_USB_GADGET_DUALSPEED  //joy
 #ifdef CONFIG_USB_GADGET_DUALSPEED
 #define DEVSPEED    USB_SPEED_HIGH
 #else   /* full speed (low speed doesn't do bulk) */
@@ -355,7 +356,7 @@ static const struct usb_descriptor_header *hs_scale_function [11] = {
 /* descriptors that are built on-demand */
 
 static char                manufacturer [50] = {"SIUDI8A"};//"jiuzhou";
-static char                product_desc [40] = {"0x20000087"};//DRIVER_DESC;//"Scale USB"
+static char                product_desc [40] = {"0000000279A8"};//less 6 byte.//"0x20000087"};//DRIVER_DESC;//"Scale USB"
 static char                serial_num [40]   = {"162216"};//"1";//need to modify
 static char                pnp_string [1024] =
     "XXMFG:linux;MDL:scale;CLS:COMM;SN:1;";
@@ -1258,7 +1259,7 @@ static int scale_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *
                 if (value >= 0)
                     value = min(wLength, (u16) value);
                 usb_dbg(dev,"-->%s value %d buf+2[%s] table.strings id[%d]\n",
-                        __func__, value, &req->buf[2], wValue & 0xff);
+                        __func__, value, (char *)(((char *)req->buf)+2), wValue & 0xff);
                 usb_dbg(NULL, "-->%s iMan[%d][%s] iPro[%d][%s] iSer[%d][%s]\n",
                         __func__,
                         device_desc.iManufacturer, strings[STRING_MANUFACTURER].s,
@@ -1345,11 +1346,61 @@ static int scale_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *
 
             value = 0;
             break;
-
         default:
             goto unknown;
+        }        
+        break;
+#ifdef DMX512_DUMMY        
+    case USB_TYPE_VENDOR:
+        usb_dbg(dev,"-->%s USB_TYPE_VENDOR\n", __func__);
+        switch (ctrl->bRequest) {
+            case 0x31://firmware version
+                if (wValue == 0x0008 && wIndex == 0x0000)//wLength=0x0004
+                {
+                    const char response[4+1]={0x05, 0x00, 0x00, 0x00, NULL};
+                    value = wLength;//0x4 byte
+                    memcpy(req->buf, response, value);
+                }
+                break;
+            case 0x25://firmware time + ...
+                if (wValue == 0x0000 && wIndex == 0x0000)//wLength=0x0008
+                {
+                    /* firmware time (2014-02-10-11:17:25)and firm version ?*/
+                    const char response[8+1]={0x45, 0xb5, 0xf8, 0x52, 0x00, 0x00, 0x00, 0x00, NULL};
+                    value = wLength;//0x8 byte
+                    memcpy(req->buf, response, value);
+                }
+                break;
+            case 0x02:
+                if (wValue == 0x0001 && wIndex == 0x0000)//wLength=0x0020
+                {
+                    const char response[32+1]={0x3c, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00,
+                                         0xcd, 0xcc, 0xcc, 0xcc,  0xcc, 0xcc, 0x45, 0x40,
+                                         0xaa, 0xf1, 0xd2, 0x4d,  0x62, 0x10, 0x0f, 0x40,
+                                         0x00, 0x00, 0x00, 0x00,  0x01, 0x00, 0x00, 0x00,
+                                         NULL};
+                    value = wLength;//32 byte
+                    memcpy(req->buf, response, value);
+                }
+                if (wValue == 0x0000 && wIndex == 0x0000)
+                {
+                    const char response[32+1] ={0xa8, 0x79, 0x02, 0x00, 0x87, 0x00, 0x00, 0x02,
+                                          0x00, 0x00, 0x00, 0x00, 0x53, 0x49, 0x55, 0x44,
+                                          0x49, 0x38, 0x41, 0x00, 0x00, 0x00, 0x44, 0x45,
+                                          0x46, 0x41, 0x55, 0x4c, 0x54, 0x00, 0x00, 0x00,
+                                          NULL};
+                    //value = wLength;//32 byte
+                    value = min(wLength, 0x20);//64 byte min->32
+                    memcpy(req->buf, response, value);
+                }
+                    
+                
+                break;
+            default:
+                goto unknown;
         }
         break;
+#endif
 
     default:
 unknown:
@@ -1512,7 +1563,7 @@ static int scale_bind(struct usb_composite_dev *cdev)
             gadget->name);
         /* unrecognized, but safe unless bulk is REALLY quirky */
         device_desc.bcdDevice =
-            cpu_to_le16(0xFFFF);//cpu_to_le16(0x0108);//cpu_to_le16(0xFFFF);
+            cpu_to_le16(0x0108);//cpu_to_le16(0xFFFF);////cpu_to_le16(0xFFFF);
     }
 #endif
     snprintf(manufacturer, sizeof(manufacturer), "%s %s with %s",
