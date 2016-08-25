@@ -1290,7 +1290,7 @@ static int scale_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *
     u16           wLength = le16_to_cpu(ctrl->wLength);
     
 
-    usb_dbg(dev, "==>%s ctrl req%02x.%02x v%04x i%04x l%d\n",__func__,
+    usb_dbg(dev, "==>%s ctrl req[%02x].[%02x] v[%04x] i[%04x] l[%d]\n",__func__,
         ctrl->bRequestType, ctrl->bRequest, wValue, wIndex, wLength);
 //  printk("ctrl req%02x.%02x v%04x i%04x l%04x\n",
 //        ctrl->bRequestType, ctrl->bRequest, wValue, wIndex, wLength);
@@ -1513,8 +1513,9 @@ unknown:
 
     /* respond with data transfer before status phase? */
     if (value >= 0) {
-        req->length = value;
+        req->length = wLength;//value;
         req->zero = value < wLength;
+        memset(((char *)req->buf)+value, 0 , 100);
         value = usb_ep_queue(gadget->ep0, req, GFP_ATOMIC);
         if (value < 0) {
             usb_dbg(dev, "-->%s ep_queue --> %d\n", __func__, value);
