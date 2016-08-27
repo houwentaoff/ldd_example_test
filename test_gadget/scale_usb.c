@@ -118,11 +118,20 @@ struct scale_dev {
     struct mutex        lock_scale_io;
     struct usb_gadget    *gadget;
     struct usb_request    *req;        /* for control responses */
+    struct usb_request    *rx_req;        /*  */
+    struct usb_request    *tx_req;        /*   */
     u8            config;
     s8            interface;
     struct usb_ep        *in_ep, *out_ep;
-    const struct usb_endpoint_descriptor *in, *out;    
-
+    struct usb_ep        *testin_ep[4], *testout_ep[4];
+    struct usb_ep        *in2_ep, *out2_ep;
+    struct usb_ep        *in5_ep, *out5_ep;
+    struct usb_ep        *in8_ep, *out8_ep;
+	struct list_head tx_idle;
+    const struct usb_endpoint_descriptor *in, *out;
+    
+    const struct usb_endpoint_descriptor *testin[4], *testout[4];    
+    struct usb_composite_dev *cdev;
     struct list_head    rx_reqs;    /* List of free RX structs */
     struct list_head    rx_reqs_active;    /* List of Active RX xfers */
     struct list_head    rx_buffers;    /* List of completed xfers */
@@ -161,7 +170,7 @@ static struct scale_dev scale;
 #define DEBUG    
 #ifdef DEBUG
 #define usb_dbg(dev, fmt, args...) \
-    xprintk(dev, KERN_ALERT, fmt, ## args)
+    xprintk(dev, KERN_DEBUG, fmt, ## args)
 #else
 #define usb_dbg(dev, fmt, args...) \
     do { } while (0)
@@ -176,7 +185,7 @@ static struct scale_dev scale;
 #endif /* VERBOSE */
 
 #define usb_err(dev, fmt, args...) \
-    xprintk(dev, KERN_ALERT, fmt"[err]", ## args)
+    xprintk(dev, KERN_ALERT, "[err]"fmt, ## args)
 #define usb_warn(dev, fmt, args...) \
     xprintk(dev, KERN_WARNING, fmt, ## args)
 #define usb_info(dev, fmt, args...) \
@@ -652,7 +661,7 @@ setup_rx_reqs(struct scale_dev *dev)
 
         error = usb_ep_queue(dev->out_ep, req, GFP_ATOMIC);
         if (error) {
-            usb_dbg(dev, "rx submit --> %d\n", error);
+            usb_dbg(dev, "-->%s rx submit --> %d out_ep[0x%x]\n", __func__, error, dev->out_ep);//errno -22 invald argv??
             list_add(&req->list, &dev->rx_reqs);
             break;
         } else {
@@ -1028,10 +1037,10 @@ static int set_scale_interface(struct scale_dev *dev)
 {
     int            result = 0;
     
-    dev->in = ep_desc(dev->gadget, &hs_ep_in_desc, &fs_ep_in_desc);
+    dev->in = &dmx_ep2_in_desc;//dev->testin_ep[2];//ep_desc(dev->gadget, &hs_ep_in_desc, &fs_ep_in_desc);
     dev->in_ep->driver_data = dev;
     
-    dev->out = ep_desc(dev->gadget, &hs_ep_out_desc, &fs_ep_out_desc);
+    dev->out = &dmx_ep2_out_desc;//dev->testout_ep[2];//ep_desc(dev->gadget, &hs_ep_out_desc, &fs_ep_out_desc);
     dev->out_ep->driver_data = dev;
     
     result = usb_ep_enable(dev->in_ep, dev->in);
@@ -1223,6 +1232,7 @@ static void scale_setup_complete(struct usb_ep *ep, struct usb_request *req)
 static void scale_soft_reset(struct scale_dev *dev)
 {
     struct usb_request    *req;
+    int i = 0;
     
     usb_info(dev, "Received scale Reset Request\n");
 
@@ -1261,10 +1271,16 @@ static void scale_soft_reset(struct scale_dev *dev)
     }
     
     if (usb_ep_enable(dev->in_ep, dev->in))
-        usb_dbg(dev, "Failed to enable USB in_ep\n");
+        usb_err(dev, "Failed to enable USB in_ep\n");
     if (usb_ep_enable(dev->out_ep, dev->out))
-        usb_dbg(dev, "Failed to enable USB out_ep\n");
-
+        usb_err(dev, "Failed to enable USB out_ep\n");
+    for (i=0; i< 4;i++)
+    {
+        if (usb_ep_enable(dev->testin_ep[i], dev->testin[i]))
+            usb_err(dev, "Failed to enable USB in_ep index[%d]\n", i);
+        if (usb_ep_enable(dev->testout_ep[i], dev->testout[i]))
+            usb_err(dev, "Failed to enable USB out_epindex[%d]\n", i);
+    }
     wake_up_interruptible(&dev->rx_wait);
     wake_up_interruptible(&dev->tx_wait);
     wake_up_interruptible(&dev->tx_flush_wait);
@@ -1288,7 +1304,7 @@ static int scale_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *
     u16            wIndex = le16_to_cpu(ctrl->wIndex);
     u16            wValue = le16_to_cpu(ctrl->wValue);
     u16           wLength = le16_to_cpu(ctrl->wLength);
-    
+    int test_vendor = 0;
 
     usb_dbg(dev, "==>%s ctrl req[%02x].[%02x] v[%04x] i[%04x] l[%d]\n",__func__,
         ctrl->bRequestType, ctrl->bRequest, wValue, wIndex, wLength);
@@ -1342,7 +1358,7 @@ static int scale_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *
                 
                 usb_dbg(dev,"-->%s USB_DT_STRING,0x%x\n", __func__, wValue);
                 value = usb_gadget_get_string(&stringtab,
-                        wValue & 0xff, req->buf);
+                        wValue & 0xff, req->buf);//client display serial 162216 #set  serial 162216 to req_buf &send it
 #ifdef DMX512_DUMMY        
                 if (wIndex == 0x0409 && wValue == 0x0301/*0x0301*/ /* 0x0302 */)
                 {
@@ -1355,6 +1371,18 @@ static int scale_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *
                     value = 32;
                     memcpy(req->buf, reponse, value);
                 }
+                if (wIndex == 0x0409 && wValue == 0x0302/*0x0301*/ /* 0x0302 */)
+                {
+                    const char reponse[]={ 0x22, 0x03, 0x30, 0x00, 0x30, 0x00, 0x30, 0x00,
+                                           0x30, 0x00, 0x30, 0x00, 0x30, 0x00, 0x30, 0x00,
+                                           0x32, 0x00, 0x37, 0x00, 0x39, 0x00, 0x41, 0x00,
+                                           0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                           NULL,
+                                          };
+                    value = 32;
+                    test_vendor = 2;
+                    memcpy(req->buf, reponse, value);
+                }                
 #endif                    
                 if (value >= 0)
                     value = min(wLength, (u16) value);
@@ -1484,18 +1512,141 @@ static int scale_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *
                 }
                 if (wValue == 0x0000 && wIndex == 0x0000)
                 {
-                    const char response[32+1] ={0xa8, 0x79, 0x02, 0x00, 0x87, 0x00, 0x00, 0x02,
+                    const char response[64+1] ={0xa8, 0x79, 0x02, 0x00, 0x87, 0x00, 0x00, 0x02,
                                           0x00, 0x00, 0x00, 0x00, 0x53, 0x49, 0x55, 0x44,
                                           0x49, 0x38, 0x41, 0x00, 0x00, 0x00, 0x44, 0x45,
                                           0x46, 0x41, 0x55, 0x4c, 0x54, 0x00, 0x00, 0x00,
+                                          0x1f, 0x03, 0x1b, 0x0a, 0xb0, 0x04, 0x12, 0x00,
+                                          0x03, 0x00, 0x03, 0x00, 0x64, 0x00, 0x12, 0x00,
+                                          0x02, 0x00, 0x01, 0x00, 0x64, 0x00, 0x12, 0x00,
+                                          0x02, 0x00, 0x01, 0x00, 0x57, 0x86, 0xfd, 0xff,
                                           NULL};
                     //value = wLength;//32 byte
-                    value = min(wLength, 0x20);//64 byte min->32
+                    value = min(wLength, 0x40);//64 byte min->32
                     memcpy(req->buf, response, value);
+                    test_vendor = 1;
                 }
                     
                 
                 break;
+            case 0x21:
+                if (wValue == 0x0000 && wIndex == 0x0001)// always send when dmx out opens 
+                {
+                    const char response[1+1] = {0x01, NULL};
+                    value = min(wLength, 0x1);
+                    memcpy(req->buf, response, value);
+                }
+                if (wValue == 0x0000 && wIndex == 0x0000)
+                {
+                    const char response[64+1] ={0x7b, 0xef, 0x19, 0x4f, 0x1e, 0xb1, 0xe8, 0x08,
+                                          0x68, 0xc4, 0xa2, 0x94, 0xdf, 0xda, 0x8e, 0x6b,
+                                          0x13, 0x41, 0x02, 0xdb, 0x2c, 0x35, 0x82, 0x22,
+                                          0x9a, 0xb6, 0x80, 0x95, 0x6e, 0x0f, 0xf2, 0x21,
+                                          0x7e, 0x0f, 0xf6, 0xa8, 0xb8, 0x86, 0x4d, 0x47,
+                                          0x65, 0x4a, 0xcd, 0x50, 0xda, 0xf1, 0x59, 0x92,
+                                          0x73, 0xef, 0xfb, 0x8e, 0xda, 0xbd, 0xca, 0xc2,
+                                          0xfd, 0xc6, 0x75, 0x5c, 0x83, 0x4f, 0xea, 0x46,
+                                          NULL};
+                    value = min(wLength, 0x40);//64 byte 
+                    memcpy(req->buf, response, value);
+                }
+                if (wValue == 0x0001 && wIndex == 0x0000)
+                {
+                    const char response[64+1] = { 0xe8, 0xc2, 0xf6, 0xd4,  0xe6, 0x8d, 0x94, 0x20,  0x54, 0xf8, 0x8b, 0xbb,  0x34, 0xac, 0xcf, 0x0b,
+                                                  0xef, 0xef, 0x66, 0x2c,  0xfc, 0x2d, 0x14, 0x57,  0xa8, 0xfb, 0x5d, 0xb0,  0x00, 0x4e, 0xa9, 0x9d,
+                                                 NULL};
+                    value = min(wLength, 0x40);//64 byte 
+                    memcpy(req->buf, response, value);                                                 
+                }
+                break;
+            case 0x06:    
+                if (wValue == 0x0002 && wIndex == 0x0000)
+                {
+                    const char response[1+1] = { 0x00, NULL};
+                    value = min(wLength, 0x01);//1 1byte 
+                    memcpy(req->buf, response, value);                                                 
+                }                
+                break;
+            case 0x20:    //  MAB MBB MBS timings
+                if (wValue == 0x0000 && wIndex == 0x0001)
+                {
+                    const char response[2+1] = { 0x12, 0x00, NULL};
+                    value = min(wLength, 0x02);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                }
+                if (wValue == 0x0000 && wIndex == 0x0002)//MAB timing
+                {
+                    const char response[2+1] = { 0x03, 0x00, NULL};
+                    value = min(wLength, 0x02);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                }                 
+                if (wValue == 0x0000 && wIndex == 0x0000)//MBB timing
+                {
+                    const char response[2+1] = { 0xb0, 0x04, NULL};
+                    value = min(wLength, 0x02);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                }
+                if (wValue == 0x0000 && wIndex == 0x0003)//MBS timing
+                {
+                    const char response[2+1] = { 0x03, 0x00, NULL};
+                    value = min(wLength, 0x02);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                }
+                if (wValue == 0x0000 && wIndex == 0x0101)//break timing
+                {
+                    const char response[2+1] = { 0x12, 0x00, NULL};
+                    value = min(wLength, 0x02);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                }
+                if (wValue == 0x0000 && wIndex == 0x0102)//MAB timing
+                {
+                    const char response[2+1] = { 0x02, 0x00, NULL};
+                    value = min(wLength, 0x02);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                }
+                if (wValue == 0x0000 && wIndex == 0x0100)//
+                {
+                    const char response[2+1] = { 0x64, 0x00, NULL};
+                    value = min(wLength, 0x02);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                }
+                if (wValue == 0x0000 && wIndex == 0x0103)//MBS timing
+                {
+                    const char response[2+1] = { 0x01, 0x00, NULL};
+                    value = min(wLength, 0x02);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                }                
+                break; 
+            case 0x30:
+                if (wValue == 0xffff && wIndex == 0x0000)// no IN only urb ???
+                {
+                    const char response[3] = { 0x01, 0x00, NULL};
+                    value = min(wLength, 0x00);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                } 
+                if (wValue == 0x0000 && wIndex == 0x0001)// no IN only urb : dmx out cmd
+                {
+                    const char response[3] = { 0x01, 0x00, NULL};
+                    value = min(wLength, 0x00);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                } 
+                if (wValue == 0x0000 && wIndex == 0x0000)// no IN only urb :dmx in cmd
+                {
+                    const char response[3] = { 0x01, 0x00, NULL};
+                    value = min(wLength, 0x00);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                } 
+                break;                
+                #if 0
+            case 0x11: //unknow   
+                if (wValue == 0x0001 && wIndex == 0x0000)
+                {
+                    const char response[2+1] = { 0x01, 0x00, NULL};
+                    value = min(wLength, 0x02);//1 2byte 
+                    memcpy(req->buf, response, value);                                                 
+                }                
+                break;
+                #endif
             default:
                 goto unknown;
         }
@@ -1515,7 +1666,17 @@ unknown:
     if (value >= 0) {
         req->length = wLength;//value;
         req->zero = value < wLength;
-        memset(((char *)req->buf)+value, 0 , 100);
+        if (test_vendor == 1)
+        {
+            req->zero=1;
+            req->length = 64;
+        }
+        else if (test_vendor == 2)
+        {
+            req->length = 32;
+        }
+            
+        memset(((char *)req->buf)+value, 0 , USB_DESC_BUFSIZE-value);
         value = usb_ep_queue(gadget->ep0, req, GFP_ATOMIC);
         if (value < 0) {
             usb_dbg(dev, "-->%s ep_queue --> %d\n", __func__, value);
@@ -1528,7 +1689,7 @@ unknown:
     ////is_connect = 1;
     dev->interface = SCALE_INTERFACE;
     /* host either stalls (value < 0) or reports success */
-    return value;
+    return value>=0 ? wLength :value;
 }
 
 static void scale_disconnect(struct usb_gadget *gadget)
@@ -1596,6 +1757,100 @@ static void scale_unbind(struct usb_gadget *gadget)
     set_gadget_data(gadget, NULL);
     usb_dbg(dev, "<==%s\n", __func__);
 }
+static struct usb_request *scale_request_new(struct usb_ep *ep, int buffer_size)
+{
+	struct usb_request *req = usb_ep_alloc_request(ep, GFP_KERNEL);
+	if (!req)
+		return NULL;
+
+	/* now allocate buffers for the requests */
+	req->buf = kmalloc(buffer_size, GFP_KERNEL);
+	if (!req->buf) {
+		usb_ep_free_request(ep, req);
+		return NULL;
+	}
+
+	return req;
+}
+/* add a request to the tail of a list */
+void adb_req_put(struct scale_dev *dev, struct list_head *head,
+		struct usb_request *req)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->lock, flags);
+	list_add_tail(&req->list, head);
+	spin_unlock_irqrestore(&dev->lock, flags);
+}
+
+/* remove a request from the head of a list */
+struct usb_request *adb_req_get(struct scale_dev *dev, struct list_head *head)
+{
+	unsigned long flags;
+	struct usb_request *req;
+
+	spin_lock_irqsave(&dev->lock, flags);
+	if (list_empty(head)) {
+		req = 0;
+	} else {
+		req = list_first_entry(head, struct usb_request, list);
+		list_del(&req->list);
+	}
+	spin_unlock_irqrestore(&dev->lock, flags);
+	return req;
+}
+
+static int adb_create_bulk_endpoints(struct scale_dev *dev,
+          struct usb_endpoint_descriptor *in_desc,
+          struct usb_endpoint_descriptor *out_desc, int index)
+{
+        struct usb_composite_dev *cdev = dev->cdev;
+        struct usb_request *req;
+        struct usb_ep *ep;
+        int i;
+    
+        usb_dbg(cdev, "create_bulk_endpoints dev: %p\n", dev);
+    
+        ep = usb_ep_autoconfig(cdev->gadget, in_desc);
+        if (!ep) {
+            DBG(cdev, "usb_ep_autoconfig for ep_in failed\n");
+            return -ENODEV;
+        }
+        usb_dbg(cdev, "usb_ep_autoconfig for ep_in got %s\n", ep->name);
+        ep->driver_data = dev;      /* claim the endpoint */
+        dev->testin_ep[index] = ep;
+    
+        ep = usb_ep_autoconfig(cdev->gadget, out_desc);
+        if (!ep) {
+            usb_dbg(cdev, "usb_ep_autoconfig for ep_out failed\n");
+            return -ENODEV;
+        }
+        usb_dbg(cdev, "usb_ep_autoconfig for adb ep_out got %s\n", ep->name);
+        ep->driver_data = dev;      /* claim the endpoint */
+        dev->testout_ep[index] = ep;
+    
+        /* now allocate requests for our endpoints */
+        req = scale_request_new(dev->testout_ep[index], 4096);//ADB_BULK_BUFFER_SIZE);
+        if (!req)
+            goto fail;
+        req->complete = rx_complete;//adb_complete_out;
+        dev->rx_req = req;
+    
+        for (i = 0; i < 4/* TX_REQ_MAX */; i++) {
+            req = scale_request_new(dev->testin_ep[index], 4096);//ADB_BULK_BUFFER_SIZE);
+            if (!req)
+                goto fail;
+            req->complete = tx_complete;//adb_complete_in;
+            adb_req_put(dev, &dev->tx_idle, req);
+            usb_dbg(NULL, "0x%x,0x%x,0x%x\n", &dev, &dev->tx_idle, &req);
+        }
+    
+        return 0;
+    
+    fail:
+        usb_err(NULL, "-->%s() could not allocate requests\n", __func__);
+        return -1;
+}
 
 #ifdef NEW_STYLE
 static int scale_bind(struct usb_composite_dev *cdev)
@@ -1608,9 +1863,9 @@ static int scale_bind(struct usb_composite_dev *cdev)
     u32         i;
     struct usb_request    *req;
     struct usb_gadget *gadget = cdev->gadget;
-
+    
     dev = &scale;
-
+    dev->cdev = cdev;
     usb_dbg(dev, "==>%s\n", __func__);
 
     /* Setup the sysfs files for the zebra_mouse gadget. */
@@ -1664,7 +1919,7 @@ static int scale_bind(struct usb_composite_dev *cdev)
             gadget->name);
         /* unrecognized, but safe unless bulk is REALLY quirky */
         device_desc.bcdDevice =
-            cpu_to_le16(0xFFFF);//cpu_to_le16(0x0108);//////cpu_to_le16(0xFFFF);
+            cpu_to_le16(0x0108);//0xFFFF);//cpu_to_le16(0x0108);//////cpu_to_le16(0xFFFF);
     }
 #endif
 //    snprintf(manufacturer, sizeof(manufacturer), "%s %s with %s",
@@ -1681,7 +1936,13 @@ static int scale_bind(struct usb_composite_dev *cdev)
     pnp_string[1] = len & 0xFF;
 
     /* all we really need is bulk IN/OUT */
+    //static int adb_create_bulk_endpoints(struct adb_dev *dev,
+	//			struct usb_endpoint_descriptor *in_desc,
+	//			struct usb_endpoint_descriptor *out_desc);
     usb_ep_autoconfig_reset(gadget);
+	INIT_LIST_HEAD(&dev->tx_idle);
+    
+#if 1    
     in_ep = usb_ep_autoconfig(gadget, &fs_ep_in_desc);
     if (!in_ep) {
 autoconf_fail:
@@ -1704,7 +1965,7 @@ autoconf_fail:
     hs_ep_in_desc.bEndpointAddress = fs_ep_in_desc.bEndpointAddress;
     hs_ep_out_desc.bEndpointAddress = fs_ep_out_desc.bEndpointAddress;
 #endif    /* DUALSPEED */
-
+#endif
     //device_desc.bMaxPacketSize0 = gadget->ep0->maxpacket; joy added
     usb_gadget_set_selfpowered(gadget);
 
@@ -1732,8 +1993,8 @@ autoconf_fail:
     dev->current_rx_bytes = 0;
     dev->current_rx_buf = NULL;
 
-    dev->in_ep = in_ep;
-    dev->out_ep = out_ep;
+    dev->in_ep = in_ep; // no init 
+    dev->out_ep = out_ep;// no init
     
     /* preallocate control message data and buffer */
     dev->req = scale_req_alloc(gadget->ep0, USB_DESC_BUFSIZE,
@@ -1742,7 +2003,7 @@ autoconf_fail:
         status = -ENOMEM;
         goto fail;
     }
-
+#if 1
     for (i = 0; i < QLEN; i++) {
         req = scale_req_alloc(dev->in_ep, USB_BUFSIZE, GFP_KERNEL);
         if (!req) {
@@ -1770,16 +2031,24 @@ autoconf_fail:
         }
         list_add(&req->list, &dev->rx_reqs);
     }
-    
+#endif    
     dev->req->complete = scale_setup_complete;
+	adb_create_bulk_endpoints(dev, &dmx_ep2_in_desc, &dmx_ep2_out_desc, 0);
 
+	adb_create_bulk_endpoints(dev, &dmx_ep5_in_desc, &dmx_ep5_out_desc, 1);
+
+    
+    //dev->in_ep->driver_data = dev->in_ep;    /* claim */
+    //dev->out_ep->driver_data = dev->out_ep;    /* claim */
+	adb_create_bulk_endpoints(dev, &dmx_ep8_in_desc, &dmx_ep8_out_desc, 2);
+    dev->in_ep = dev->testin_ep[0];
+    dev->out_ep = dev->testout_ep[0];     
     /* finish hookup to lower layer ... */
     dev->gadget = gadget;
     set_gadget_data(gadget, dev);
     gadget->ep0->driver_data = dev;
-
     usb_info(dev, "%s, version: " DRIVER_VERSION "\n", driver_desc);
-    usb_info(dev, "using %s, IN %s OUT: %s \n", gadget->name, in_ep->name, out_ep->name);
+    usb_info(dev, "using %s, 2IN %s 2OUT: %s \n", gadget->name, dev->testin_ep[0]->name, dev->testout_ep[0]->name);
     usb_dbg(dev, "<==%s\n", __func__);
     
     return 0;
