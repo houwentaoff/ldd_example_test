@@ -118,8 +118,8 @@ struct scale_dev {
     struct mutex        lock_scale_io;
     struct usb_gadget    *gadget;
     struct usb_request    *req;        /* for control responses */
-    struct usb_request    *rx_req;        /*  */
-    struct usb_request    *tx_req;        /*   */
+    struct usb_request    *rx_req;        /* for ?? */
+    struct usb_request    *tx_req;        /*  for ?? */
     u8            config;
     s8            interface;
     struct usb_ep        *in_ep, *out_ep;
@@ -1530,7 +1530,7 @@ static int scale_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *
                 
                 break;
             case 0x21:
-                if (wValue == 0x0000 && wIndex == 0x0001)// always send when dmx out opens 
+                if (wValue == 0x0000 && wIndex == 0x0001)// always send when dmx out opens. maybe get statistics???
                 {
                     const char response[1+1] = {0x01, NULL};
                     value = min(wLength, 0x1);
@@ -2004,6 +2004,7 @@ autoconf_fail:
         goto fail;
     }
 #if 1
+// save tx/rx reqs to tx_reqs rx_reqs
     for (i = 0; i < QLEN; i++) {
         req = scale_req_alloc(dev->in_ep, USB_BUFSIZE, GFP_KERNEL);
         if (!req) {
@@ -2032,7 +2033,7 @@ autoconf_fail:
         list_add(&req->list, &dev->rx_reqs);
     }
 #endif    
-    dev->req->complete = scale_setup_complete;
+    dev->req->complete = scale_setup_complete;//for control  usb req 
 	adb_create_bulk_endpoints(dev, &dmx_ep2_in_desc, &dmx_ep2_out_desc, 0);
 
 	adb_create_bulk_endpoints(dev, &dmx_ep5_in_desc, &dmx_ep5_out_desc, 1);
