@@ -53,11 +53,11 @@ static ssize_t foo_show(struct kobject *kobj, struct kobj_attribute *attr,
     char *buf)
 {
     //在多核中内核会卡住,如死机一般
-//    spin_lock(&lock);//禁止内核抢占?在单核中这样不会内核卡住,只不过会cpu 100%,挂后台才能看到,否则现象如死机
-    spin_lock_irq(&lock);//既禁止本地中断，又禁止内核抢占,现象为真正卡死了
-    do{}while(1);//不加spin_lock情况下 4核cpu下cpu只能飙升到50%,
-    spin_unlock_irq(&lock);
-//    spin_unlock(&lock);
+    spin_lock(&lock);//禁止内核抢占?在单核中这样不会内核卡住,只不过会cpu 100%,挂后台才能看到,否则现象如死机
+//    spin_lock_irq(&lock);//既禁止本地中断，又禁止内核抢占,现象为真正卡死了
+    do{;}while(1);//不加spin_lock情况下 4核cpu下cpu只能飙升到50%,
+//    spin_unlock_irq(&lock);
+    spin_unlock(&lock);
     return sprintf(buf, "%d\n", foo);
 }
 
@@ -106,7 +106,7 @@ static int __init example_init(void)
 {
      int retval = 0;
      spin_lock_init(&lock);
-     soc_adc_class   = class_create(THIS_MODULE, "soc_adc");
+     soc_adc_class   = class_create(THIS_MODULE, "soc_adca");
      test_dev1   = device_create(soc_adc_class, NULL, 0, NULL, "adc1");//sec/目录下创建xxx目录
      test_dev2   = device_create(soc_adc_class, NULL, 0, NULL, "adc2");//sec/目录下创建xxx目录
      retval = sysfs_create_group(&test_dev1->kobj, &attr_group);

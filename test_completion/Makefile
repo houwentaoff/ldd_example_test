@@ -1,6 +1,5 @@
 ifneq ($(KERNELRELEASE),)
-obj-m	:= test_spinlock.o
-obj-m	+= test_spinlock1.o
+obj-m	:= test_completion.o
 else
 KERNELDIR     ?= /work/32work/B9161/Source/Kernel/linux-3.10.x #/home/other/tq/kernel_imx/#/usr/src/linux-headers-`uname -r`/
 #INCLUDE       := $(KERNELDIR)/drivers/usb/gadget
