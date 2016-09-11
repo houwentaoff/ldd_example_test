@@ -9,3 +9,6 @@
 4. 测试proc.
 5. 测试sysfs.
 6. 测试usb device gadget.
+7. 测试completion.
+8. 测试spinlock.
+9. 测试misc.

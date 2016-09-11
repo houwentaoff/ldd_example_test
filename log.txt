@@ -1,3 +1,5 @@
+2016.9.11
+1. 增加misc,completion和spinlock.
 2016.8.25
 1. 增加usb device gadget驱动(lsusb可以识别,1配置1功能6端点).
 2016.8.14
