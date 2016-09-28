@@ -18,7 +18,7 @@ int main()
 	int ret;
 	struct input_event ev;
 	
-	fd = open("/dev/input/event16", O_RDONLY);
+	fd = open("/dev/input/event0", O_RDONLY);
 	if (fd < 0) {
 		printf("open file failed\n");
 		exit(1);
@@ -36,7 +36,7 @@ int main()
 		}
 		
 		if (ev.type == EV_KEY)
-			printf("type %d,code %d, value %d\n", ev.type, ev.code, ev.value);
+			printf("[test]: type %d,code %d, value %d\n", ev.type, ev.code, ev.value);
 	}
 	
 	return 0;
