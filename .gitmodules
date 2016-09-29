@@ -1,0 +1,3 @@
+[submodule "test_gadget/hunter_data"]
+	path = test_gadget/hunter_data
+	url = https://github.com/houwentaoff/images.git
