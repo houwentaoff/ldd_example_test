@@ -4,12 +4,12 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-//#include <linux/input.h> // this does not compile
+#include <linux/input.h> // this does not compile
 #include <errno.h>
 
 
 // from <linux/input.h>
-
+#if 0
 struct input_event {
 	struct timeval time;
 	__u16 type;
@@ -43,7 +43,7 @@ struct input_event {
 
 // end <linux/input.h>
 
-
+#endif
 
 int sendevent_main(int argc, char *argv[])
 {
@@ -60,11 +60,11 @@ int sendevent_main(int argc, char *argv[])
 
     fd = open(argv[1], O_RDWR);
     if(fd < 0) {
-        fprintf(stderr, "could not open %s, %s\n", argv[optind], strerror(errno));
+        fprintf(stderr, "could not open %s, %s\n", argv[1], strerror(errno));
         return 1;
     }
     if (ioctl(fd, EVIOCGVERSION, &version)) {
-        fprintf(stderr, "could not get driver version for %s, %s\n", argv[optind], strerror(errno));
+        fprintf(stderr, "could not get driver version for %s, %s\n", argv[1], strerror(errno));
         return 1;
     }
     memset(&event, 0, sizeof(event));
@@ -76,5 +76,10 @@ int sendevent_main(int argc, char *argv[])
         fprintf(stderr, "write event failed, %s\n", strerror(errno));
         return -1;
     }
+    return 0;
+}
+int main(int argc, char *argv[])
+{
+    sendevent_main(argc, argv);
     return 0;
 }

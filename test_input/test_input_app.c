@@ -35,8 +35,8 @@ int main()
 			exit(1);
 		}
 		
-		if (ev.type == EV_KEY)
-			printf("[test]: type %d,code %d, value %d\n", ev.type, ev.code, ev.value);
+//		if (ev.type == EV_KEY)
+        printf("[test]: type %d,code %d, value %d\n", ev.type, ev.code, ev.value);
 	}
 	
 	return 0;
