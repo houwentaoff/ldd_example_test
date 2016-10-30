@@ -9,10 +9,10 @@
 4. 测试proc.
 5. 测试sysfs.
 6. 测试usb device gadget.
-7. 测试completion.
+7. 测试completion. (一种同步机制)
 8. 测试spinlock.
 9. 测试misc.
 
 ## 其它测试例子
 
-1. 测试芯片内部看门狗.
+1. 测试芯片内部看门狗（硬件看门狗，内核飞掉也能重启）.
