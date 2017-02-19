@@ -1,5 +1,5 @@
 ifneq ($(KERNELRELEASE),)
-obj-m	:= test_tasklet.o
+obj-m	:= test_tasklet_hi.o
 else
 KERNELDIR     ?= /home/work/workf/tq/kernel_imx/ #/usr/src/linux-headers-`uname -r`#/work/32work/B9161/Source/Kernel/linux-3.10.x #/home/other/tq/kernel_imx/
 #INCLUDE       := $(KERNELDIR)/drivers/usb/gadget
