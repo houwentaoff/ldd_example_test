@@ -12,6 +12,7 @@
 7. 测试completion. (一种同步机制)
 8. 测试spinlock.
 9. 测试misc.
+10. 测试wait_queue.(和完成量相关)
 
 ## 其它测试例子
 
