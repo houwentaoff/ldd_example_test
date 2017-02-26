@@ -14,6 +14,7 @@
 9. 测试misc.
 10. 测试wait_queue.(和完成量相关)
 11. 测试tasklet & tasklet hi.
+12. 测试mmap.
 
 ## 其它测试例子
 
