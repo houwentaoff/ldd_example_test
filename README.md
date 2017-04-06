@@ -16,6 +16,7 @@
 11. 测试tasklet & tasklet hi.
 12. 测试mmap.
 13. 测试线程化中断.
+14. 测试schedule/signal_pending/set_current_state.
 
 ## 其它测试例子
 
