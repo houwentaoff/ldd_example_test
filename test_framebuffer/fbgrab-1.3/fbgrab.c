@@ -514,7 +514,8 @@ int main(int argc, char **argv)
         strncpy(infile, device, MAX_LEN - 1);
     }
 
-    buf_size = width * height * (((unsigned int) bitdepth + 7) >> 3);
+    //+7 ??? why??
+    buf_size = width * height * (((unsigned int) bitdepth/*   + 7*/) >> 3);
 
     buf_p = malloc(buf_size);
 
@@ -522,7 +523,7 @@ int main(int argc, char **argv)
         fatal_error("Not enough memory");
 
     memset(buf_p, 0, buf_size);
-
+    printf("skip_bytes[%d]\n", skip_bytes);
     read_framebuffer(infile, buf_size, buf_p, skip_bytes);
 
     if (UNDEFINED != old_vt)
