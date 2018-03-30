@@ -3,9 +3,13 @@
  *       Copyright (c), 2013-2020, xxx.
  *       Filename:  test_sysfs.c
  *
- *    Description:  测试在sysfs/class下创建soc_adc/adc1/value soc_adc/adc2/value文件，
- *                  使用device_del能正常卸载并重复加载由于没有dev_t不能使用device_destroy
+ *    Description:  测试在sysfs/class下创建soc_adc/adc1/value soc_adc/adc2/value 文件，
+ *                  使用device_del能正常卸载并重复加载 由于没有dev_t不能使用device_destroy: class 设备缘故?
  *         Others:
+ *                  1. 在秤上使用过用于采集指定ADC通道的2种传感器的值(感光传感器和xxx)
+ *                  当时直接在nuc970adc.c中probe进行sys设备节点创建;内部封装了一个
+ *                  static u32 nuc970adc_read(struct nuc970_adc *nuc970_adc, unsigned char chan)
+ *                  函数读取指定chan的值.
  *
  *        Version:  1.0
  *        Created:  Wednesday, August 10, 2016 11:02:24 CST

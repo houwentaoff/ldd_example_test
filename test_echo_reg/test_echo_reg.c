@@ -3,7 +3,7 @@
  *       Copyright (c), 2013-2020, Jz.
  *       Filename:  echo_reg.c
  *
- *    Description:  
+ *    Description:  添加了file中的privatedata. private数据是自定义的结构体.
  *         Others:
  *
  *        Version:  1.0
@@ -25,6 +25,7 @@
 #include <asm/uaccess.h>
 #include <linux/device.h>
 #include <linux/io.h>
+#include <linux/slab.h>
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("housir");
@@ -37,24 +38,47 @@ static struct cdev reg_read_cdev;
 volatile unsigned long regs_addr = 0;
 volatile unsigned long *virt_addr = 0;
 
+struct testdata{
+    int a;
+    int b;
+    int c;
+};
+
 static int reg_open(struct inode *inode, struct file *filp);
 static ssize_t reg_read(struct file *filp, char *buffer, size_t count, loff_t *ppos);
 static ssize_t reg_write(struct file *file,const char __user *buf, size_t count, loff_t *ppos);
 
+static int release(struct inode *in, struct file *fp);
 static struct file_operations reg_read_ops = {
       .owner   =  THIS_MODULE,
       .open    =  reg_open,
       .read    =  reg_read,
       .write   =  reg_write, 
+      .release = release,
 };
 
+static int release(struct inode *in, struct file *fp)
+{
+    printk("===> %s\n", __func__);
+    if (fp->private_data)
+    {
+        printk("pri is not null,free it!\n");
+        kfree(fp->private_data);
+    }
+    else
+    {
+        printk("pri is null\n");
+    }
+    printk("<=== %s\n", __func__);
+}
 static ssize_t reg_write(struct file *file,const char __user *buf, size_t count, loff_t *ppos)
 {
     unsigned char bin_content_ascii[100] = {'\0'};
     unsigned int reg_addr = 0;
     ssize_t rc = 0;
     static char flag = 0;
-    
+    struct testdata *pri = NULL;
+
     flag = ~flag;
 
     if(copy_from_user(bin_content_ascii,buf,count))
@@ -69,6 +93,11 @@ static ssize_t reg_write(struct file *file,const char __user *buf, size_t count,
     }
     printk("phy addr[0x%x], value[0x%x]\n", reg_addr, *virt_addr);
     iounmap((void *)virt_addr);     
+
+    pri = file->private_data;
+    pri->a = ++pri->a;
+    pri->b = pri->b++;
+
 err_reg_map:
     return count;
 }
@@ -76,6 +105,12 @@ err_reg_map:
 static int reg_open(struct inode *inode, struct file *filp)
 {
     printk("===> %s\n", __func__);
+    struct testdata * pri = NULL;
+    
+    pri = kzalloc(sizeof (struct testdata), GFP_KERNEL);
+    
+    filp->private_data = pri;
+
     printk("<=== %s\n", __func__);
 
     return 0;
@@ -83,8 +118,11 @@ static int reg_open(struct inode *inode, struct file *filp)
 
 static ssize_t reg_read(struct file *filp, char *buffer, size_t count, loff_t *ppos)
 {
+    struct testdata *pri = NULL;
     printk("===> %s\n", __func__);
-    printk("<=== %s\n", __func__);
+    pri = filp->private_data;
+
+    printk("<=== %s a[%d]b[%d]c[%d]\n", __func__, pri->a, pri->b, pri->c);
     return 0;
 }
 
