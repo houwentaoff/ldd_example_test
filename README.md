@@ -1,6 +1,9 @@
 # ldd_examle_test
 **ldd的测试例子**
 
+## Qemu
+1. 便于调试kernel的qemu配置和环境.
+
 ## 测试例子
 
 1. 测试input设备.
@@ -17,8 +20,8 @@
 12. 测试mmap.
 13. 测试线程化中断.
 14. 测试schedule/signal_pending/set_current_state.
-
 15. 增加网卡转发例子.
+16. 测试tap网络的例子.
 
 ## 其它测试例子
 

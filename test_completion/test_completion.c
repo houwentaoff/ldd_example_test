@@ -31,7 +31,7 @@ MODULE_AUTHOR("housir");
 
 #define DEVNAME "housir_gpio"
 
-static int major = 244;
+static int major = 227;
 static struct class *housir_class;
 static struct cdev reg_read_cdev;
 volatile unsigned long regs_addr = 0;
