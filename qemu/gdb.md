@@ -19,9 +19,17 @@ console::respawn:/sbin/getty -L  console 0 vt100 # GENERIC_SERIAL
 ```
 ```dev/console
 ```
+### rootfs in buildroot
+```package/busybox/busybox.mk:191
+ifeq ($(BR2_TARGET_GENERIC_GETTY),y)    
+    define BUSYBOX_SET_GETTY                
+    $(SED) '/# GENERIC_SERIAL$$/s~^.*#~ttyS0::respawn:/sbin/getty -L $(SYSTEM_GETTY_OP    TIONS) ttyS0 $(SYSTEM_GETTY_BAUDRATE) $(SYSTEM_GETTY_TERM) #~' \                      
+    $(TARGET_DIR)/etc/inittab       
+endef 
+```
 
 ## kernel
-enable nfs client, e1000e
+enable nfs client, e1000e, nfs on rootfs
 
 ## cmd
 `sudo output/host/bin/qemu-system-x86_64 \
