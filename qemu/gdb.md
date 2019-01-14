@@ -48,3 +48,10 @@ enable nfs client, e1000e, nfs on rootfs
 
 `target remote 127.0.0.1:1234`
 
+## other
+### dont use gdb
+1. `nm vmlinux | grep [function name]`
+2. `addr2line -e vmlinux [addr]`
+
+### use gdb
+1. `list *[func name]+[addr]` `eg: l *start_kernel+0x10`
