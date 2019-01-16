@@ -48,6 +48,11 @@ enable nfs client, e1000e, nfs on rootfs
 
 `target remote 127.0.0.1:1234`
 
+## debug Removal optimization
+
+* Add `#pragma GCC optimize("O0")` in file head.  
+* Add `__attribute__((optimize(“-O0”)))` in function head.  
+
 ## other
 ### dont use gdb
 1. `nm vmlinux | grep [function name]`
