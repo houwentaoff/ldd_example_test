@@ -22,6 +22,7 @@
 14. 测试schedule/signal_pending/set_current_state.
 15. 增加网卡转发例子.
 16. 测试tap网络的例子.
+17. 测试timer例子.
 
 ## 其它测试例子
 
