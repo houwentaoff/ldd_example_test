@@ -290,7 +290,8 @@ static int c2port_poll_out_ready(struct c2port_device *dev)
 
 		if (addr & 0x01)
 			break;
-
+                //joy: may be to adjust so bigger. if you do not , it will fail ，because erase needs long time.
+                // 1->20 or bigger		
 		udelay(1);
 	} while (--timeout > 0);
 	if (timeout == 0)
