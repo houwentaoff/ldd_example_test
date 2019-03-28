@@ -1,12 +1,12 @@
 ifneq ($(KERNELRELEASE),)
-obj-m	:= core.o c2port-duramar2150.o c2port-client.o
+obj-m	:= test_fw.o
 else
 
 KERNELDIR ?= /home/work/worke/github/buildroot-2018.02.2/output/build/linux-4.15 #/usr/src/linux-headers-`uname -r`/
 PWD       := $(shell pwd)
 CROSS_COMPILE := /home/work/worke/github/buildroot-2018.02.2/output/host/bin/x86_64-buildroot-linux-gnu-
 default:
-	$(MAKE)  -C $(KERNELDIR) CROSS_COMPILE=$(CROSS_COMPILE)  M=$(PWD) modules
+	$(MAKE)  -C $(KERNELDIR) CROSS_COMPILE=$(CROSS_COMPILE)  M=$(PWD) modules  
 endif
 
 clean:
