@@ -3,11 +3,44 @@
  *       Copyright (c), 2013-2020, xxx.
  *       Filename:  test_platform1.c
  *
- *    Description:  
+ *    Description:  定时器 精度大约ms级别 走软中断
  *                  
  *         Others:  
  *                  platform_driver_register platform_driver_unregister
  *                  platform_get_drvdata platform_set_drvdata
+ *                  在中断不可用时，采用定时器捕获波形
+ *                  捕获指定波形:
+ *                      1. 利用状态机fsm 和 对前导码(特征波形)，和定时器 状态机，判断指定波形
+ *                      如:如下代码在定时器函数中被定时触发
+ *                      * 
+ *                      ```c
+ *                      static enum fsm_state xxx_state;
+ *                      static void fsm(enum fsm_state state){
+ *                          switch(state){
+ *                              case LISTEN_STATE:
+ *                                  if (xxx){
+ *                                      xxx_state = PREAMBLE_STATE;
+ *                                  }
+ *                                  //timer .. timer.expires = jiffies + 1*HZ/2;/500ms
+ *                                  break;
+ *                              case PREAMBLE_STATE:
+ *                                  if (xxx){
+ *                                      xxx_state = RESET_STATE;
+ *                                  }else{
+ *                                      xxx_state = LISTEN_STATE;
+ *                                  }
+ *                                  break;
+ *                              case RESET_STATE:
+ *                              //check and set state to init -> LISTEN_STATE , set timer
+ *                                  break;
+ *                              default:
+ *                                  xxx_state = LISTEN_STATE;
+ *                                  //timer .. timer.expires = jiffies + 2*HZ;//2s
+ *                                  break;
+ *                          }
+ *                          add_timer(xx);
+ *                      }
+ *                      ```
  *
  *        Version:  1.0
  *        Created:  Sunday, August 14, 2016 10:48:35 CST
@@ -59,6 +92,8 @@ static ssize_t on_store(struct kobject *kobj, struct kobj_attribute *attr,
             }
             break;
         case 0:
+            //删除时记得查询是否还在全局链中，如不在链中会出错
+            //也要防止正在被触发的的时候被删除。
             if (timer_pending(&my_timer))
             {
                 del_timer_sync(&my_timer);
@@ -72,13 +107,14 @@ static ssize_t on_store(struct kobject *kobj, struct kobj_attribute *attr,
 static ssize_t value_store(struct kobject *kobj, struct kobj_attribute *attr,
       const char *buf, size_t count)
 {
-    unsigned int time = 0;
-    sscanf(buf, "%u", &time);
-    printk("time = %ums.\n", time);
-    time = time *HZ/1000;
-    timeperiod = time;
-    printk("jiffies = %u/s.\n", time);
-    mod_timer(&my_timer, jiffies + time);
+    unsigned int mstime = 0;
+    unsigned int stime = 0;
+    sscanf(buf, "%u", &stime);
+    printk("time = %us.\n", stime);
+    mstime = stime *HZ/1000;//s HZ-> ms 
+    timeperiod = mstime;
+    printk("jiffies = %u/s.\n", stime);
+    mod_timer(&my_timer, jiffies + mstime);
     printk("finish.\n");
     return count;
 }
@@ -138,6 +174,7 @@ static int __init example_init(void)
         printk("[test sysfs]: sysfs create group fail.\n");
     }
     timer_setup(&my_timer, timer_func, 0);
+    //需要使用add或者Mod加入内核的全局定时器链 
 
     return retval;
 }

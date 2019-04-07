@@ -8,6 +8,10 @@
  *         Others:  相关的api:
  *                  platform_driver_register platform_driver_unregister
  *                  platform_get_drvdata platform_set_drvdata
+ *                  和dts的关系:
+ *                  1. dts被解析时自动识别成一个platform 
+ *                  2. 在probe中解析dts中描述的管脚，时钟等相关信息并进行初始化处理
+ *                  3. 在硬件发生变化时，只需要改变不同的dts文件,并不用修改驱动代码
  *
  *        Version:  1.0
  *        Created:  Sunday, August 14, 2016 10:48:35 CST
@@ -158,6 +162,6 @@ static void __exit test_platform_exit(void)
 
 module_init(test_platform_init);
 module_exit(test_platform_exit);
-MODULE_AUTHOR("Joy.Hou China Chengdu");
+MODULE_AUTHOR("Joy.Hou Chengdu China");
 MODULE_DESCRIPTION("test platform driver");
 MODULE_LICENSE("GPL");
