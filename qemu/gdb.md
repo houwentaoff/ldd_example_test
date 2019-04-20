@@ -44,6 +44,8 @@ enable nfs client, e1000e, nfs on rootfs
 -append "nokaslr root=/dev/nfs nfsroot=10.0.0.1:/home/work/worke/github/buildroot-2018.02.2/output/target rw     nfsaddrs=10.0.0.2:10.0.0.1:10.0.0.1:255.255.255.0  console=ttyS0 init=/linuxrc"`
 
 ## gdb
+`sudo service nfs-kernel-server restart`
+`exportfs -a`
 `cgdb -d x86_64-buildroot-linux-gnu-gdb ./vmlinux`
 
 `target remote 127.0.0.1:1234`
@@ -51,7 +53,7 @@ enable nfs client, e1000e, nfs on rootfs
 ## debug Removal optimization
 
 * Add `#pragma GCC optimize("O0")` in file head.  
-* Add `__attribute__((optimize(“-O0”)))` in function head.  
+* Add `__attribute__((optimize("-O0")))` in function head.  
 
 ## other
 ### dont use gdb
