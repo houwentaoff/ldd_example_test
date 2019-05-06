@@ -19,7 +19,7 @@ common_interrupt:
 `__visible unsigned int __irq_entry do_IRQ(struct pt_regs *regs)
 `-->`handle_irq`-->`...`-->`handle_level_irq`-->`handle_irq_event`-->
 `handle_irq_event_percpu`-->
-``` kernel irq
+``` c
 irqreturn_t __handle_irq_event_percpu(struct irq_desc *desc, unsigned int *flags)
 {
 	irqreturn_t retval = IRQ_NONE;
@@ -71,7 +71,8 @@ irqreturn_t __handle_irq_event_percpu(struct irq_desc *desc, unsigned int *flags
 }
 
 ```
-``` 线程化的中断 该函数被申请中断函数所调用
+线程化的中断 该函数被申请中断函数所调用
+``` c 
 static int irq_setup_forced_threading(struct irqaction *new)
 {
 	if (!force_irqthreads)
