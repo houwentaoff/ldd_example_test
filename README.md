@@ -28,6 +28,7 @@
 20. 增加有自定义其它判断条件的等待队列.
 21. 增加Qualcomm Fuse Programmable Read Only Memory(QFPROM).
 22. 增加电源管理模块demo regulator.
+23. 增加多线程阻塞IO,list_head.
 
 ## 其它测试例子
 

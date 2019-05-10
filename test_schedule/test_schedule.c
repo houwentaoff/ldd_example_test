@@ -27,6 +27,7 @@
 #include <linux/device.h>
 #include <linux/io.h>
 #include <linux/sched.h>
+#include <asm/uaccess.h>
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("housir");
