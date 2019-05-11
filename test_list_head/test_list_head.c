@@ -91,7 +91,7 @@ static ssize_t reg_read(struct file *file, char *buffer, size_t count, loff_t *o
     /*-----------------------------------------------------------------------------
      *  接近wait_event 的实现源码
      *-----------------------------------------------------------------------------*/
-    if (!atomic_read(&gld.wait)){
+    if (!atomic_read(&pri->has_data)){
         add_wait_queue(&gld.wait, &wait);
         for ( ; ; ) {
             set_current_state(TASK_INTERRUPTIBLE);
@@ -148,6 +148,7 @@ static int reg_open(struct inode *inode, struct file *filp)
     }
     
     atomic_inc(&gld.ref_cnt);
+    // 需要加锁 保护gld.list_head
     list_add_rcu(&pri->list_head, &gld.list_head);
     filp->private_data = pri;   
     printk("<=== %s\n", __func__);
@@ -169,7 +170,9 @@ static int release(struct inode *in, struct file *fp)
     }
     if (pri)
     {
+        // 需要加锁 避免2个写者同时操作保护gld.list_head
         list_del_rcu(&pri->list_head);
+        synchronize_rcu();
         kfree(pri);
     }
 
@@ -262,13 +265,15 @@ static void timer_func(struct timer_list * t)
     struct priv_data *pri = NULL;  
     
     gld.data++;
-
+    rcu_read_lock();
     /*-----------------------------------------------------------------------------
-     *  必须使用锁 以防止多核上 轮训到被删除的list node
+     * 错误的使用? 必须使用锁 以防止多核上 轮训到被删除的list node
+     * 只读,不应该直接修改pri中的值
      *-----------------------------------------------------------------------------*/
     list_for_each_entry_rcu(pri, &gld.list_head, list_head){
         atomic_set(&pri->has_data, 1);
     }
+    rcu_read_unlock();
 //    struct list_head * cur;
 //    list_for_each(cur, gld.list_head) {
 //        transport = list_entry(elae, struct transport, list);
