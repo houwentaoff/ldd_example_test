@@ -21,6 +21,7 @@
 /*-----------------------------------------------------------------------------
  *  1. 此驱动定时器 最小精度为1ms
  *  2. 原子变量经常配合 条件等待队列使用
+ *  3. 加入RCUlist对list进行加锁
  *-----------------------------------------------------------------------------*/
 #include <linux/module.h>
 #include <linux/sysfs.h>
@@ -147,7 +148,7 @@ static int reg_open(struct inode *inode, struct file *filp)
     }
     
     atomic_inc(&gld.ref_cnt);
-    list_add(&pri->list_head, &gld.list_head);
+    list_add_rcu(&pri->list_head, &gld.list_head);
     filp->private_data = pri;   
     printk("<=== %s\n", __func__);
 
@@ -168,7 +169,7 @@ static int release(struct inode *in, struct file *fp)
     }
     if (pri)
     {
-        list_del(&pri->list_head);
+        list_del_rcu(&pri->list_head);
         kfree(pri);
     }
 
@@ -250,13 +251,22 @@ static struct attribute *attrs[] = {
 static struct attribute_group attr_group = {
       .attrs = attrs,
 };
+
+/**
+ * @brief 模拟中断
+ *
+ * @param t
+ */
 static void timer_func(struct timer_list * t)
 {
     struct priv_data *pri = NULL;  
     
     gld.data++;
 
-    list_for_each_entry(pri, &gld.list_head, list_head){
+    /*-----------------------------------------------------------------------------
+     *  必须使用锁 以防止多核上 轮训到被删除的list node
+     *-----------------------------------------------------------------------------*/
+    list_for_each_entry_rcu(pri, &gld.list_head, list_head){
         atomic_set(&pri->has_data, 1);
     }
 //    struct list_head * cur;
