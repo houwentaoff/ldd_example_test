@@ -4,7 +4,7 @@
  *       Filename:  echo_reg.c
  *
  *    Description:  
- *         Others:
+ *         Others: 
  *
  *        Version:  1.0
  *        Created:  08/09/2016 11:05:23 AM
@@ -17,6 +17,38 @@
  * =====================================================================================
  */
 
+/*-----------------------------------------------------------------------------
+ *  1. 如何实现信号的保存
+ *
+ *  ```
+static inline long __sched
+do_wait_for_common(struct completion *x,
+		   long (*action)(long), long timeout, int state)
+{
+	if (!x->done) {//如果done变量存在 则直接被唤醒
+		DECLARE_WAITQUEUE(wait, current);
+
+		__add_wait_queue_tail_exclusive(&x->wait, &wait);
+		do {
+			if (signal_pending_state(state, current)) {
+				timeout = -ERESTARTSYS;
+				break;
+			}
+			__set_current_state(state);
+			spin_unlock_irq(&x->wait.lock);
+			timeout = action(timeout);
+			spin_lock_irq(&x->wait.lock);
+		} while (!x->done && timeout);
+		__remove_wait_queue(&x->wait, &wait);
+		if (!x->done)
+			return timeout;
+	}
+	x->done--;// 靠变量done++ done--保存已经发送的信号量
+	return timeout ?: 1;
+}
+
+ *  ```
+ *-----------------------------------------------------------------------------*/
 #include <linux/module.h>
 #include <linux/fs.h>
 #include <linux/cdev.h>
@@ -25,6 +57,7 @@
 #include <asm/uaccess.h>
 #include <linux/device.h>
 #include <linux/io.h>
+#include <linux/uaccess.h> 
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("housir");
@@ -105,7 +138,7 @@ static ssize_t reg_read(struct file *filp, char *buffer, size_t count, loff_t *p
 
 static int reg_init(void)
 {
-    int result,err ;
+    int result ;
     float apple=1;
     dev_t devid;
     result = (int) apple;

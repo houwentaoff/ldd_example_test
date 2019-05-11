@@ -3,7 +3,7 @@
  *       Copyright (c), 2013-2020, xxx.
  *       Filename:  test_platform1.c
  *
- *    Description:  定时器 精度大约ms级别 走软中断
+ *    Description:  
  *                  
  *         Others:  
  *
@@ -18,6 +18,10 @@
  * =====================================================================================
  */
 
+/*-----------------------------------------------------------------------------
+ *  1. 此驱动定时器 最小精度为1ms
+ *  2. 原子变量经常配合 条件等待队列使用
+ *-----------------------------------------------------------------------------*/
 #include <linux/module.h>
 #include <linux/sysfs.h>
 #include <linux/init.h>
@@ -82,21 +86,27 @@ static ssize_t reg_read(struct file *file, char *buffer, size_t count, loff_t *o
 //        return 0;
     printk("===> %s:%p\n", __func__, file);  
     pri = file->private_data;
-    add_wait_queue(&gld.wait, &wait);
-    for ( ; ; ) {
-        set_current_state(TASK_INTERRUPTIBLE);
-        if (atomic_read(&pri->has_data) == 1){
-            atomic_set(&pri->has_data, 0);
-            break;
-        }else if (file->f_flags & O_NONBLOCK) {
-            retval = -EAGAIN;
-            goto out;
-        } else if (signal_pending(current)) {
-            retval = -ERESTARTSYS;
-            goto out;
-        }      
-        schedule();
-    }          
+    
+    /*-----------------------------------------------------------------------------
+     *  接近wait_event 的实现源码
+     *-----------------------------------------------------------------------------*/
+    if (!atomic_read(&gld.wait)){
+        add_wait_queue(&gld.wait, &wait);
+        for ( ; ; ) {
+            set_current_state(TASK_INTERRUPTIBLE);
+            if (atomic_read(&pri->has_data) == 1){
+                break;
+            }else if (file->f_flags & O_NONBLOCK) {
+                retval = -EAGAIN;
+                goto out;
+            } else if (signal_pending(current)) {
+                retval = -ERESTARTSYS;
+                goto out;
+            }      
+            schedule();
+        }          
+    }
+    atomic_set(&pri->has_data, 0);
 #if 0
     retval = put_user(gld.data, (unsigned long __user *)buffer);
     if (!retval)
