@@ -276,7 +276,7 @@ static void timer_func(struct timer_list * t)
     
     gld.data++;
     spin_lock_irqsave(&gld.lock, flags);
-    rcu_read_lock();
+//    rcu_read_lock();
     /*-----------------------------------------------------------------------------
      * 错误的使用? 必须使用锁 以防止多核上 轮训到被删除的list node
      * 只读,不应该直接修改pri中的值
@@ -284,7 +284,7 @@ static void timer_func(struct timer_list * t)
     list_for_each_entry_rcu(pri, &gld.list_head, list_head){
         atomic_set(&pri->has_data, 1);
     }
-    rcu_read_unlock();
+//    rcu_read_unlock();
     spin_unlock_irqrestore(&gld.lock, flags);
 //    struct list_head * cur;
 //    list_for_each(cur, gld.list_head) {
@@ -292,7 +292,7 @@ static void timer_func(struct timer_list * t)
 //
 //    }
     
-    wake_up_interruptible(&gld.wait);
+    wake_up_interruptible_all(&gld.wait);
     my_timer.expires = jiffies + timeperiod;
     add_timer(&my_timer);
 }
