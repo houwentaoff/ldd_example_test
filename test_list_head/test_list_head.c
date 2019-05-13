@@ -36,6 +36,7 @@
 #include <linux/slab.h> 
 #include <asm/uaccess.h> 
 #include <linux/uaccess.h>
+#include <uapi/linux/sched/types.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Joy.Hou");
@@ -84,12 +85,20 @@ static ssize_t reg_read(struct file *file, char *buffer, size_t count, loff_t *o
     char str[10] = {0};
     int has_queue = 0;
     int len = 0;
+    struct sched_param param;
 
-//    if (*off > 0)
-//        return 0;
-    printk("===> %s:%p\n", __func__, file);  
+    //    if (*off > 0)
+    //        return 0;
+    //    printk("===> %s:%p\n", __func__, file);  
     pri = file->private_data;
-    
+    if (unlikely(current->rt_priority != MAX_USER_RT_PRIO-1)){
+        param.sched_priority = 99;
+        if (sched_setscheduler(current, SCHED_RR, &param) < 0)//出错时返回-1
+        {
+            printk("set pri error\n");
+        }
+        printk("set pri ... %d\n", current->rt_priority);    
+    }
     /*-----------------------------------------------------------------------------
      *  接近wait_event 的实现源码
      *-----------------------------------------------------------------------------*/
@@ -124,14 +133,14 @@ static ssize_t reg_read(struct file *file, char *buffer, size_t count, loff_t *o
         retval = -EFAULT;
     }
     *off += len;
-    printk("data[%lu]\n", d);
+    //    printk("data[%lu]\n", d);
 #endif
 out:           
     if (has_queue){
         __set_current_state(TASK_RUNNING);
         remove_wait_queue(&gld.wait, &wait);
     }
-    printk("<=== %s:%p\n", __func__, file);
+    //    printk("<=== %s:%p\n", __func__, file);
     return len;
 }       
 
@@ -143,7 +152,7 @@ static int reg_open(struct inode *inode, struct file *filp)
     printk("===> %s\n", __func__);
 
     pri = kzalloc(sizeof (struct priv_data), GFP_KERNEL);
-    
+
     if (atomic_inc_return(&gld.ref_cnt) == 1)
     {
         printk("we has been init!\n");
@@ -152,10 +161,10 @@ static int reg_open(struct inode *inode, struct file *filp)
          *  do other...
          *-----------------------------------------------------------------------------*/
     }
-    
+
     // 需要加锁 保护gld.list_head
     spin_lock_irqsave(&gld.lock, flags);
-    list_add_rcu(&pri->list_head, &gld.list_head);
+    list_add(&pri->list_head, &gld.list_head);
     spin_unlock_irqrestore(&gld.lock, flags);
     filp->private_data = pri;   
     printk("<=== %s\n", __func__);
@@ -179,8 +188,8 @@ static int release(struct inode *in, struct file *fp)
     {
         // 需要加锁 避免2个写者同时操作保护gld.list_head
         spin_lock_irqsave(&gld.lock, flags);
-        list_del_rcu(&pri->list_head);
-        synchronize_rcu();
+        list_del(&pri->list_head);
+        //        synchronize_rcu();
         spin_unlock_irqrestore(&gld.lock, flags);
         kfree(pri);
     }
@@ -192,13 +201,13 @@ static int release(struct inode *in, struct file *fp)
  * The "foo" file where a static variable is read from and written to.
  */
 static ssize_t on_show(struct kobject *kobj, struct kobj_attribute *attr,
-    char *buf)
+        char *buf)
 {
-      return sprintf(buf, "%s\n", timer_pending(&my_timer) ? "true" : "false");
+    return sprintf(buf, "%s\n", timer_pending(&my_timer) ? "true" : "false");
 }
 
 static ssize_t on_store(struct kobject *kobj, struct kobj_attribute *attr,
-      const char *buf, size_t count)
+        const char *buf, size_t count)
 {
     unsigned int flag = 0;
     sscanf(buf, "%u", &flag);
@@ -224,12 +233,12 @@ static ssize_t on_store(struct kobject *kobj, struct kobj_attribute *attr,
     return count;
 }
 static ssize_t value_store(struct kobject *kobj, struct kobj_attribute *attr,
-      const char *buf, size_t count)
+        const char *buf, size_t count)
 {
     unsigned int mstime = 0;
     unsigned int stime = 0;
     sscanf(buf, "%u", &stime);
-//    printk("time = %us.\n", stime);
+    //    printk("time = %us.\n", stime);
     mstime = stime *HZ/1000;//s HZ-> ms 
     timeperiod = mstime;
     printk("time period = %ums.\n", stime);
@@ -249,9 +258,9 @@ static DEVICE_ATTR(on, S_IWUSR|S_IRUSR , on_show, on_store);
  * at once.
  */
 static struct attribute *attrs[] = {
-      &dev_attr_value.attr,
-      &dev_attr_on.attr,
-      NULL, /* need to NULL terminate the list of attributes */
+    &dev_attr_value.attr,
+    &dev_attr_on.attr,
+    NULL, /* need to NULL terminate the list of attributes */
 };
 
 /*
@@ -261,7 +270,7 @@ static struct attribute *attrs[] = {
  * attribute group.
  */
 static struct attribute_group attr_group = {
-      .attrs = attrs,
+    .attrs = attrs,
 };
 
 /**
@@ -273,25 +282,25 @@ static void timer_func(struct timer_list * t)
 {
     struct priv_data *pri = NULL;  
     unsigned long flags=0;
-    
+
     gld.data++;
     spin_lock_irqsave(&gld.lock, flags);
-//    rcu_read_lock();
+    //    rcu_read_lock();
     /*-----------------------------------------------------------------------------
      * 错误的使用? 必须使用锁 以防止多核上 轮训到被删除的list node
      * 只读,不应该直接修改pri中的值
      *-----------------------------------------------------------------------------*/
-    list_for_each_entry_rcu(pri, &gld.list_head, list_head){
+    list_for_each_entry(pri, &gld.list_head, list_head){
         atomic_set(&pri->has_data, 1);
     }
-//    rcu_read_unlock();
+    //    rcu_read_unlock();
     spin_unlock_irqrestore(&gld.lock, flags);
-//    struct list_head * cur;
-//    list_for_each(cur, gld.list_head) {
-//        transport = list_entry(elae, struct transport, list);
-//
-//    }
-    
+    //    struct list_head * cur;
+    //    list_for_each(cur, gld.list_head) {
+    //        transport = list_entry(elae, struct transport, list);
+    //
+    //    }
+
     wake_up_interruptible_all(&gld.wait);
     my_timer.expires = jiffies + timeperiod;
     add_timer(&my_timer);
@@ -300,8 +309,8 @@ static void timer_func(struct timer_list * t)
 static void start_timer(void)
 {
     timer_setup(&my_timer, timer_func, 0);
-//    my_timer.expires = jiffies + 1*HZ/100;
-//    add_timer(&my_timer);
+    //    my_timer.expires = jiffies + 1*HZ/100;
+    //    add_timer(&my_timer);
 }
 #endif
 static int __init example_init(void)
@@ -343,7 +352,7 @@ static int __init example_init(void)
 
     INIT_LIST_HEAD(&gld.list_head);
     init_waitqueue_head(&gld.wait);
-     spin_lock_init(&gld.lock);
+    spin_lock_init(&gld.lock);
 
     return retval;
 out_chrdev:
