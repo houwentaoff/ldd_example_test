@@ -54,6 +54,7 @@ struct priv_data{
 };
 struct global_data{
     /* 连接上priv_data */
+    spinlock_t lock;
     struct list_head list_head;
     wait_queue_head_t wait;
     unsigned long data;
@@ -81,6 +82,7 @@ static ssize_t reg_read(struct file *file, char *buffer, size_t count, loff_t *o
     DECLARE_WAITQUEUE(wait, current);
     unsigned long d = 0;
     char str[10] = {0};
+    int has_queue = 0;
     int len = 0;
 
 //    if (*off > 0)
@@ -93,6 +95,7 @@ static ssize_t reg_read(struct file *file, char *buffer, size_t count, loff_t *o
      *-----------------------------------------------------------------------------*/
     if (!atomic_read(&pri->has_data)){
         add_wait_queue(&gld.wait, &wait);
+        has_queue = 1;
         for ( ; ; ) {
             set_current_state(TASK_INTERRUPTIBLE);
             if (atomic_read(&pri->has_data) == 1){
@@ -124,21 +127,24 @@ static ssize_t reg_read(struct file *file, char *buffer, size_t count, loff_t *o
     printk("data[%lu]\n", d);
 #endif
 out:           
-    __set_current_state(TASK_RUNNING);
-    remove_wait_queue(&gld.wait, &wait);
-
+    if (has_queue){
+        __set_current_state(TASK_RUNNING);
+        remove_wait_queue(&gld.wait, &wait);
+    }
     printk("<=== %s:%p\n", __func__, file);
     return len;
 }       
 
 static int reg_open(struct inode *inode, struct file *filp)
 {                    
-    struct priv_data * pri = NULL;                                                                                                                                   
+    struct priv_data * pri = NULL;
+    unsigned long flags=0;
+
     printk("===> %s\n", __func__);
 
     pri = kzalloc(sizeof (struct priv_data), GFP_KERNEL);
     
-    if (atomic_read(&gld.ref_cnt) == 0)
+    if (atomic_inc_return(&gld.ref_cnt) == 1)
     {
         printk("we has been init!\n");
 
@@ -147,9 +153,10 @@ static int reg_open(struct inode *inode, struct file *filp)
          *-----------------------------------------------------------------------------*/
     }
     
-    atomic_inc(&gld.ref_cnt);
     // 需要加锁 保护gld.list_head
+    spin_lock_irqsave(&gld.lock, flags);
     list_add_rcu(&pri->list_head, &gld.list_head);
+    spin_unlock_irqrestore(&gld.lock, flags);
     filp->private_data = pri;   
     printk("<=== %s\n", __func__);
 
@@ -157,10 +164,10 @@ static int reg_open(struct inode *inode, struct file *filp)
 }                
 static int release(struct inode *in, struct file *fp)
 {
+    unsigned long flags=0;
     struct priv_data * pri = fp->private_data; 
     printk("===> %s\n", __func__);   
-    atomic_dec(&gld.ref_cnt);
-    if (atomic_read(&gld.ref_cnt) == 0)
+    if (atomic_dec_return(&gld.ref_cnt) == 0)
     {
         ;
     }
@@ -171,8 +178,10 @@ static int release(struct inode *in, struct file *fp)
     if (pri)
     {
         // 需要加锁 避免2个写者同时操作保护gld.list_head
+        spin_lock_irqsave(&gld.lock, flags);
         list_del_rcu(&pri->list_head);
         synchronize_rcu();
+        spin_unlock_irqrestore(&gld.lock, flags);
         kfree(pri);
     }
 
@@ -263,8 +272,10 @@ static struct attribute_group attr_group = {
 static void timer_func(struct timer_list * t)
 {
     struct priv_data *pri = NULL;  
+    unsigned long flags=0;
     
     gld.data++;
+    spin_lock_irqsave(&gld.lock, flags);
     rcu_read_lock();
     /*-----------------------------------------------------------------------------
      * 错误的使用? 必须使用锁 以防止多核上 轮训到被删除的list node
@@ -274,6 +285,7 @@ static void timer_func(struct timer_list * t)
         atomic_set(&pri->has_data, 1);
     }
     rcu_read_unlock();
+    spin_unlock_irqrestore(&gld.lock, flags);
 //    struct list_head * cur;
 //    list_for_each(cur, gld.list_head) {
 //        transport = list_entry(elae, struct transport, list);
@@ -331,6 +343,7 @@ static int __init example_init(void)
 
     INIT_LIST_HEAD(&gld.list_head);
     init_waitqueue_head(&gld.wait);
+     spin_lock_init(&gld.lock);
 
     return retval;
 out_chrdev:
