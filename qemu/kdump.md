@@ -140,4 +140,25 @@ USE_KDUMP=1
 ```
 
 
+## 
+1. `cp arch/x86/boot/bzImage /boot/vmlinuz-3.8.0-rc5`
+2. `chmod a+x vmlinuz-3.8.0-rc5`
+3. `update-initramfs -u -k  3.18.0-rc5 ` #version 
+4. `cp System.map /boot/System.map-3.8.0-rc5`
+
+https://blog.csdn.net/quqi99/article/details/8546687
+
+## qemu快速reboot
+kexec -l  --command-line="nokaslr root=/dev/nfs nfsroot=10.0.0.1:/home/work/wo
+rke/github/buildroot-2018.02.2/output/target rw nfsaddrs=10.0.0.2:10.0.0.1:10.0.
+0.1:255.255.255.0 console=ttyS0 init=/linuxrc quiet irqpoll maxcpus=1 nousb"  /b
+zImage
+kexec -e
+系统会reboot进入kexec中load的内核
+kexec -p  --command-line="nokaslr root=/dev/nfs nfsroot=10.0.0.1:/home/work/wo
+rke/github/buildroot-2018.02.2/output/target rw nfsaddrs=10.0.0.2:10.0.0.1:10.0.
+0.1:255.255.255.0 console=ttyS0 init=/linuxrc quiet irqpoll maxcpus=1 nousb"  /b
+zImage
+echo c > /proc/sysrq
+系统会重启并进入捕获内核
 
