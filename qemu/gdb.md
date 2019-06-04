@@ -61,7 +61,8 @@ enable nfs client, e1000e, nfs on rootfs
 2. `addr2line -e vmlinux [addr]`
 
 ### use gdb
-1. `list *[func name]+[addr]` `eg: l *start_kernel+0x10`
+* *.ko和vmlinux均可以使用gdb.
+* `list *[func name]+[addr]` `eg: l *start_kernel+0x10`
 
 ### eg
 `[<c14a18f3>] ? common_interrupt+0x33/0x38` 0x33:相对common_interrupt的偏移地址, 0x38:函数总大小
