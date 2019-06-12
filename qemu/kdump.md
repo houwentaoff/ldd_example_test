@@ -5,6 +5,8 @@
 1. wget ....
 2. apt-get install zlib1g-dev liblzma-dev libxen-dev
 3. 确保在源码中`./configure` 都是yes
+4. 需要file命令支持
+5. kdump-tools kexec-tools crash
 
 ## 命令组成
 * kexec : 内核崩溃时,使用kexec -p --> Load the new kernel for use on panic. 使用新版本
@@ -16,7 +18,7 @@
 
 ## 关键步骤
 1. 第一个捕获内核必须打开调试等信息
-2. 第2个内核为随便什么内核，版本什么都没关系，因为是为了捕获第一个内核，千万不能和第一个内核一样，否则不能成功
+2. 第2个内核为随便什么内核，版本什么都没关系，因为是为了捕获第一个内核，千万不能和第一个内核一样，否则不能成功，目前我采用的ubuntu系统的pae内核
 
 
 ## 配置组成
