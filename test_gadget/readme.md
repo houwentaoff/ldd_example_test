@@ -8,3 +8,6 @@ mount -t debugfs none_debugs /sys/kernel/debug/
 ls -l /sys/kernel/debug/usbmon/
 ```
 ### 使用BUS Hound (win)
+
+### 内核文档
+* `KDIR/Documentation/usb/usbmon.txt`
