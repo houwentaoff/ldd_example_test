@@ -37,7 +37,9 @@ irqreturn_t __handle_irq_event_percpu(struct irq_desc *desc, unsigned int *flags
 		res = action->handler(irq, action->dev_id);
         
 		trace_irq_handler_exit(irq, action, res);
-
+                /*
+                 * 注意 下面3行代码，如果我们在非线程化的中断中使用spin_unlock_irq会导致如下的wran_once必然打印而线程化中断则不会出现该现象？
+                 */
 		if (WARN_ONCE(!irqs_disabled(),"irq %u handler %pF enabled interrupts\n",
 			      irq, action->handler))
 			local_irq_disable();
