@@ -2,7 +2,7 @@
 **内核版本 3.18**
 
 ## use intel pstate
-`/etc/default/grub`:`GRUB_CMDLINE_LINUX_DEFAULT="quiet idle=poll"`: idle为休眠相关
+`/etc/default/grub`:`GRUB_CMDLINE_LINUX_DEFAULT="quiet idle=poll"`: idle为休眠相关 在4.4内核中需添加`idle=poll`且设置为性能模式cpu才能保持最大频率运行
 inter pstate不能降频
 
 ### bios控制动态与否
@@ -54,6 +54,5 @@ package C state limit 和 report ，最大cpu c state 似乎没有影响
 
 ## 疑问
 * 在使用`intel pstate` 时，为何会触发`acpi_pm_read`函数,该函数不是和`acpi-cpufreq`强相关么?
-*
 
 
