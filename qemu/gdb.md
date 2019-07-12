@@ -18,6 +18,7 @@ sudo ifconfig $1 10.0.0.1
 console::respawn:/sbin/getty -L  console 0 vt100 # GENERIC_SERIAL
 ```
 ```dev/console
+   sudo mknod console c  5 1
 ```
 ### rootfs in buildroot
 ```package/busybox/busybox.mk:191
