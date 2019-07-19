@@ -11,6 +11,19 @@ package/glibc/glibc.mk -->GLIBC_VERSION = glibc-2.26-146-gd300041c533a3d837c9f37
 * buildroot 上寻找匹配的版本
 * 替换其中的glibc.mk
 * 若出现no hash found,则找到该脚本去掉hash校验,继续编译
+  hash检查代码在文件 ${BUILDROOT}/support/download/check-hash 中
+```sh
+if [ ${nb_checks} -eq 0 ]; then
+    case " ${BR_NO_CHECK_HASH_FOR} " in
+    *" ${base} "*)
+        # File explicitly has no hash
+        exit 0
+        ;;
+    esac
+    printf "ERROR: No hash found for %s\n" "${base}" >&2
+    exit 1 # 此处修改为 exit 0,可使hash检查失效
+fi
+```
 * 切勿用高版本glibc替换低版本容易内核panic.
 
 ## 查看glibc支持的版本
