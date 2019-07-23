@@ -156,7 +156,7 @@ static int __init test_platform_init(void)
 static void __exit test_platform_exit(void)
 {
     test_platform_device_exit();
-    platform_driver_unregister(&test_platform_driver);
+    platform_driver_unregister(&test_platform_driver);//该函数会触发dm9000_drv_remove
     printk(KERN_INFO "<==%s exit\n", __func__);
 }
 
