@@ -40,3 +40,13 @@ Target options  ---> Target Architecture Variant (cortex-A72) ---> cortex-A72
 
 # 使用外部编译工具链
 外部编译工具链若不可重定向则buildroot不能使用,这时可不用外部工具链而选择buildroot相似的工具链.
+
+# 其它组件
+## php 
+在buildroot 2019-02版本中，php版本为7.3.2，会出现只生成执行文件`php`而不生成动态库`.so`和静态库`.a`的现象
+* 导致该现象的原因，可以在`Makefile`中看到并无`libs/libphp$(PHP_MAJOR_VERSION).bundle: ` 该规则并未在`all`中导致不会主动编译`.so`，且`.bundle`是动态库不应该使用`xxx-gcc`应该使用`xxx-ar cr $@ $? && cp $@ libs/libphp$(PHP_MAJOR_VERSION).so`
+* 下文为`configure`生成的错误的`Makefile`
+```makefile
+ 145 libs/libphp$(PHP_MAJOR_VERSION).bundle: $(PHP_GLOBAL_OBJS) $(PHP_SAPI_OBJS)
+ 146     $(CC) $(MH_BUNDLE_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS) $(LDFLAGS) $(EXTRA_LDFLAGS     ) $(PHP_GLOBAL_OBJS:.lo=.o) $(PHP_SAPI_OBJS:.lo=.o) $(PHP_FRAMEWORKS) $(EXTRA_LIBS) $(Z     END_EXTRA_LIBS) -o $@ && cp $@ libs/libphp$(PHP_MAJOR_VERSION).so 
+```
