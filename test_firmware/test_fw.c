@@ -10,6 +10,7 @@
  *                  机中
  *                  3. 涉及到烧写时序参考c2 interface ,c2port中使用的local_irq_disable() local_irq_enable()
  *                  4. fw的默认路径查看内核源码可以看到大致为'/lib/firmware ....'
+ *                  5. 注意4.14内核 此处的变化
  *         Others:
  *
  *        Version:  1.0
@@ -28,7 +29,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/firmware.h>
-
+#include <linux/slab.h>
 /**
  * @brief in the function ,you can use spi/c2/i2c ....interface to transmit fw data to device.
  *
@@ -51,7 +52,35 @@ static int __init example_init(void)
     const struct firmware *fw;
     const unsigned char *data = NULL;
 
+    
+    // 在内核4.14 使用该API会配合udev进行操作会wait，若udev和对应的sys/class未配置好，会一直wait
+    // 可暂时使用如下代码代替
+#ifdef DONT_USE_FM
+    enum kernel_read_file_id id = READING_FIRMWARE; 
+    char *path = NULL;
+    size_t msize = INT_MAX;
+    loff_t size;
+    int  len;
+    
+#endif
     printk("==> %s\n", __func__);
+#ifdef DONT_USE_FM
+        path = __getname();
+
+    len = snprintf(path, 128, "%s/%s",
+                       "/lib/firmware", "test.bin");
+    printk("len[%d] path[%s]\n", len, path);
+    ret = kernel_read_file_from_path(path, (void **)&data, &size, msize,
+                                    id);
+    
+    printk("%d\n", ret);
+    if (ret == 0)
+    {
+        printk("size[%d], msize[%d]data[%s]\n", size, msize, data);
+    }
+    __putname(path);
+#endif
+    
     ret = request_firmware(&fw, "test.bin", &dev);
     if (ret < 0)
     {
