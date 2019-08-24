@@ -32,3 +32,5 @@ static void __exit aaa_exit(void)
 module_init(aaa_init);
 module_exit(aaa_exit);
 ```
+# init中不能调用哪些函数
+`kernel_restart` 此种类型api会调用每个驱动的shutdown,会死锁?

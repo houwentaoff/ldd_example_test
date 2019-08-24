@@ -59,12 +59,13 @@ platform_add_devices(smdkc210_devices, ARRAY_SIZE(smdkc210_devices));
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/fs.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/device.h>
 #include <linux/io.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
-
+#include <linux/reboot.h>
+#include <linux/workqueue.h>   
 /**
  * @brief platform device的私有数据
  */
@@ -105,13 +106,25 @@ static int dm9000_drv_remove(struct platform_device *pdev)
     platform_set_drvdata(pdev, NULL);
     return 0;
 }
+static struct work_struct work;   
+static void work_func(struct work_struct *work)
+{                                                                                                                                                               
+    printk("work queue wake  exec!!!\n");
+    kernel_restart(NULL); //是可以重启的, 只要不放在init- probe-等函数中就行
+    return ;
+}
+
 static int dm90001_probe(struct platform_device *pdev)
 {
     int ret = 0;
     struct test_data *pdata = pdev->dev.platform_data;
     char * rbuff = NULL;
-
+    INIT_WORK(&work, work_func);  
     printk("==>%s data[%s]\n", __func__, pdata->str);
+    printk("111111111111\n");
+    schedule_work(&work); 
+//    kernel_restart(NULL); //该语句阻塞, 目前不会重启设备.(原因为　该API会调用每个设备的shutdown ,而insmod未结束会卡住这里，无法调用该去掉的shutdown?)
+    printk("2222222222222\n");
 
     rbuff = kmalloc(100, GFP_KERNEL);
     if (rbuff == NULL ) {

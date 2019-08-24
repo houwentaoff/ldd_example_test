@@ -3,7 +3,7 @@ ifneq ($(KERNELRELEASE),)
 obj-m	:= test_platform1.o
 else
 
-KERNELDIR ?= /usr/src/linux-headers-`uname -r`/
+KERNELDIR ?= /home/work/worke/github/buildroot-2018.02.2/output/build/linux-4.15/  #/usr/src/linux-headers-`uname -r`/
 PWD       := $(shell pwd)
 
 default:
