@@ -10,7 +10,7 @@
  *                  机中
  *                  3. 涉及到烧写时序参考c2 interface ,c2port中使用的local_irq_disable() local_irq_enable()
  *                  4. fw的默认路径查看内核源码可以看到大致为'/lib/firmware ....'
- *                  5. 注意4.14内核 此处的变化
+ *                  5. 注意api中的device参数
  *         Others:
  *
  *        Version:  1.0
@@ -30,6 +30,7 @@
 #include <linux/module.h>
 #include <linux/firmware.h>
 #include <linux/slab.h>
+#include <linux/workqueue.h> 
 /**
  * @brief in the function ,you can use spi/c2/i2c ....interface to transmit fw data to device.
  *
@@ -44,44 +45,17 @@ static  int burn_fw(const u8 *data, size_t size)
     (void) (data);(void)(size);
     return ret;
 }
-//该代码一般放在probe或者手动通过sysfs触发
-static int __init example_init(void)
-{
+
+//static struct work_struct work;   
+static void work_func(struct work_struct *work)
+{    
     int ret = 0;
-    struct device dev;
+//    struct device dev;
     const struct firmware *fw;
     const unsigned char *data = NULL;
 
-    
-    // 在内核4.14 使用该API会配合udev进行操作会wait，若udev和对应的sys/class未配置好，会一直wait
-    // 可暂时使用如下代码代替
-#ifdef DONT_USE_FM
-    enum kernel_read_file_id id = READING_FIRMWARE; 
-    char *path = NULL;
-    size_t msize = INT_MAX;
-    loff_t size;
-    int  len;
-    
-#endif
-    printk("==> %s\n", __func__);
-#ifdef DONT_USE_FM
-        path = __getname();
-
-    len = snprintf(path, 128, "%s/%s",
-                       "/lib/firmware", "test.bin");
-    printk("len[%d] path[%s]\n", len, path);
-    ret = kernel_read_file_from_path(path, (void **)&data, &size, msize,
-                                    id);
-    
-    printk("%d\n", ret);
-    if (ret == 0)
-    {
-        printk("size[%d], msize[%d]data[%s]\n", size, msize, data);
-    }
-    __putname(path);
-#endif
-    
-    ret = request_firmware(&fw, "test.bin", &dev);
+    printk("work queue wake  exec!!!\n");
+    ret = request_firmware(&fw, "test.bin", NULL);//注意device参数
     if (ret < 0)
     {
         printk("failed to load file test.bin\n");
@@ -106,6 +80,44 @@ static int __init example_init(void)
 fw_release:
     release_firmware(fw);
 out:
+    return ;
+}
+
+//该代码一般放在probe或者手动通过sysfs触发
+static int __init example_init(void)
+{
+    int ret = 0;
+//    INIT_WORK(&work, work_func); 
+//    schedule_work(&work); 
+    // 在内核4.14 使用该API会配合udev进行操作会wait，若udev和对应的sys/class未配置好，会一直wait : 因为device参数传成了没人使用的device导致死锁，卡住
+    // 可暂时使用如下代码代替
+    work_func(NULL);
+#ifdef DONT_USE_FM
+    enum kernel_read_file_id id = READING_FIRMWARE; 
+    char *path = NULL;
+    size_t msize = INT_MAX;
+    loff_t size;
+    int  len;
+
+#endif
+    printk("==> %s\n", __func__);
+#ifdef DONT_USE_FM
+    path = __getname();
+
+    len = snprintf(path, 128, "%s/%s",
+            "/lib/firmware", "test.bin");
+    printk("len[%d] path[%s]\n", len, path);
+    ret = kernel_read_file_from_path(path, (void **)&data, &size, msize,
+            id);
+
+    printk("%d\n", ret);
+    if (ret == 0)
+    {
+        printk("size[%d], msize[%d]data[%s]\n", size, msize, data);
+    }
+    __putname(path);
+#endif
+
     printk("<== %s\n", __func__);
     return ret;
 }
