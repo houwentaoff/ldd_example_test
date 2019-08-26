@@ -56,11 +56,65 @@ static int my_read(struct file *filp,char __user *buf,size_t size,loff_t *off)
     return len;
 }
 
+static ssize_t misc_write(struct file*file, const char *src, size_t size, loff_t *offset)
+{
+    char buf[100] = {'\0'};
+    unsigned int addr = 0;
+    unsigned int val;
+    int i = 0;
+
+    if(copy_from_user(buf, src, size))
+        return 0;
+
+    if (!strncmp(buf, "readall", 7))
+    {
+        printk("all reg begin:\n");
+        for (i=0; i<=0x320e; i++)
+        {
+            if (i%20 == 0)
+            {
+                printk("\n");
+            }
+            ;//printk ("0x%x, 0x%x ", i, ad9528_read(iio, AD9528_1B(i)));
+        }
+        printk("\n");
+        printk("end:\n");
+    }
+    else if (!strncmp(buf, "read ", 5))
+    {
+        sscanf(buf, "read %x", &addr);
+        if (addr >= 0x3fff)
+        {
+            printk("err addr\n");
+        }
+        else{
+            ;//printk("==>%s addr[0x%x] value[0x%x]\n", __func__, addr, ad9528_read(iio, AD9528_1B(addr)));
+        }
+    }
+    else if (!strncmp(buf, "write ", 6))
+    {
+        sscanf(buf, "write %x %x", &addr, &val);
+        if (addr >= 0x3fff)
+        {
+            printk("err addr\n");
+        }
+        else{
+            ;//ad9528_write(iio, AD9528_1B(addr), val&0xff);
+        }
+    }
+    else if (!strncmp(buf, "sync", 4))
+    {
+        ;//ad9528_io_update(iio);
+    }
+    return size;
+}
+
 
 struct file_operations my_miscdev_fops =
 {    
     .open = my_open,
     .read = my_read,
+    .write = misc_write,    
     //unlocked_ioctl,
 };
 
@@ -69,7 +123,7 @@ struct miscdevice my_miscdev =
     .minor = 201,
     .name =  "my_miscdev",// 设备节点:/dev/my_miscdev
     .fops = &my_miscdev_fops,
-};
+};//static struct miscdevice my_miscdev = { 229, "my_miscdev", &my_miscdev_fops };
 static int my_miscdev_init(void)
 {
     int ret;
