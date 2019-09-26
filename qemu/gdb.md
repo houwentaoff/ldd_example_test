@@ -13,15 +13,18 @@ echo "Executing /etc/qemu-ifup"
 sudo ifconfig $1 10.0.0.1
 ```
 ## rootfs
-```etc/inittab
+```
+etc/inittab
 # Put a getty on the serial port
 console::respawn:/sbin/getty -L  console 0 vt100 # GENERIC_SERIAL
 ```
-```dev/console
-   sudo mknod console c  5 1
+```
+    dev/console
+    sudo mknod console c  5 1
 ```
 ### rootfs in buildroot
-```package/busybox/busybox.mk:191
+```makefile
+package/busybox/busybox.mk:191
 ifeq ($(BR2_TARGET_GENERIC_GETTY),y)    
     define BUSYBOX_SET_GETTY                
     $(SED) '/# GENERIC_SERIAL$$/s~^.*#~ttyS0::respawn:/sbin/getty -L $(SYSTEM_GETTY_OP    TIONS) ttyS0 $(SYSTEM_GETTY_BAUDRATE) $(SYSTEM_GETTY_TERM) #~' \                      
@@ -63,7 +66,10 @@ enable nfs client, e1000e, nfs on rootfs
 
 ### use gdb
 * *.ko和vmlinux均可以使用gdb.
-* `list *[func name]+[addr]` `eg: l *start_kernel+0x10`
+* `list *[func name]+[addr]` `eg: list *start_kernel+0x10`
+
+### use objdump
+* `objdump -d hello.o > assemble.txt`
 
 ### eg
 `[<c14a18f3>] ? common_interrupt+0x33/0x38` 0x33:相对common_interrupt的偏移地址, 0x38:函数总大小
