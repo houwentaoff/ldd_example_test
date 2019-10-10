@@ -74,7 +74,7 @@ irqreturn_t __handle_irq_event_percpu(struct irq_desc *desc, unsigned int *flags
 
 ```
 线程化的中断 该函数被申请中断函数所调用
-``` c 
+```c 
 static int irq_setup_forced_threading(struct irqaction *new)
 {
 	if (!force_irqthreads)
