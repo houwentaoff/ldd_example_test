@@ -70,6 +70,7 @@ enable nfs client, e1000e, nfs on rootfs
 
 ### use objdump
 * `objdump -d hello.o > assemble.txt`
+* `objdump -DS a.out |less` 程序跑飞了，用该命令和PC指针查看跑飞的地址
 
 ### eg
 `[<c14a18f3>] ? common_interrupt+0x33/0x38` 0x33:相对common_interrupt的偏移地址, 0x38:函数总大小
