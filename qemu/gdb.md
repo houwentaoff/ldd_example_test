@@ -58,7 +58,14 @@ enable nfs client, e1000e, nfs on rootfs
 
 * Add `#pragma GCC optimize("O0")` in file head.  
 * Add `__attribute__((optimize("-O0")))` in function head.  
-
+* 下面语句可以对多个或一个函数进行指定优化等级同 __attribute__((optimize("-O3")))效果一样
+``` 
+   #pragma GCC push_options
+   #pragma GCC optimize("O3")
+   code function1
+   code function2
+   #pragma GCC pop_options
+```
 ## other
 ### dont use gdb
 1. `nm vmlinux | grep [function name]`
