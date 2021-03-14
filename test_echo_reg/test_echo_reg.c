@@ -91,6 +91,13 @@ static ssize_t reg_write(struct file *file,const char __user *buf, size_t count,
         rc = -ENOMEM;
         goto err_reg_map;
     }
+	/*
+	   ioremap 可使用devm_ioremap进行替换，如下:
+		  static int cdns_spi_probe(struct platform_device *pdev)
+		  一般该操作在probe中完成，其它函数中使用regs，参数传递&platform_device->dev 即可
+	   void __iomem *crl_apb_rst = devm_ioremap(&pdev->dev, 0x1122334455, sizeof(unsigned int));
+		  devm_ioremap 优点是devm系列函数不用调用iounmap
+	*/
     printk("phy addr[0x%x], value[0x%x]\n", reg_addr, *virt_addr);
     iounmap((void *)virt_addr);     
 

@@ -23,6 +23,9 @@
 #include <linux/delay.h>
 #include <linux/of.h>
 
+/* 使用 mount -t debugfs debugfs /sys/kernel/debug ;
+ * cat /sys/kernel/debug/gpio 查看内核中注册的gpio
+ */
 static int dm90001_probe(struct platform_device *pdev)
 {
     struct gpio_desc *status0_gpio;
@@ -32,7 +35,21 @@ static int dm90001_probe(struct platform_device *pdev)
     /* gpio suffixes used for ACPI and device tree lookup */                                  
     // static const char * const gpio_suffixes[] = { "gpios", "gpio" };
     // Optional pins ??
-
+    /* 如果gpios中有多个io,可使用devm_gpiod_get_index_optional*/
+    /*
+     *   如下
+         Request GPIOs. 
+         for (i = 0; i < state->info->num_dv_ports; ++i) {
+             state->hpd_gpio[i] =
+                 devm_gpiod_get_index_optional(&client->dev, "hpd", i,
+                                   GPIOD_OUT_LOW);
+             if (IS_ERR(state->hpd_gpio[i]))
+                 return PTR_ERR(state->hpd_gpio[i]);
+         
+             if (state->hpd_gpio[i])
+                 v4l_info(client, "Handling HPD %u GPIO\n", i);
+         }
+     */
     status0_gpio = devm_gpiod_get_optional(&pdev->dev, "status0", GPIOD_OUT_LOW);
     if (!PTR_ERR_OR_ZERO(status0_gpio))
         gpiod_direction_input(status0_gpio);
@@ -75,7 +92,7 @@ module_platform_driver(test_platform_driver);
    <&gpio 16 GPIO_ACTIVE_HIGH>, // green
    <&gpio 17 GPIO_ACTIVE_HIGH>; // blue 
 
-   reset-gpios = <&gpio 1 GPIO_ACTIVE_LOW>;
+   reset-gpios = <&gpio 1 GPIO_ACTIVE_LOW>;//GPIO_ACTIVE_LOW 可写成0/1
    };
 */
 MODULE_AUTHOR("Joy.Hou Chengdu China");
