@@ -8,12 +8,15 @@
  *                  已存在的次设备号避免冲突.
  *                  2. 也可利用动态的次设备号
  *         Others:
- *                  1. 实例：zebra 斑马扫描头:在原生的OV5640 sensor驱动上加入了瞄准灯和补光灯的附加操作
+ *                  1. 实例：
+ *                      1.1. zebra 斑马扫描头:在原生的OV5640 sensor驱动上加入了瞄准灯和补光灯的附加操作
  *                  对应的混杂设备文件为/dev/sdl_control id为动态的 MISC_DYNAMIC_MINOR
- *                  2. 原生的sensor驱动位于media/video/mxc/capture/0v5640.c 是非字符设备的驱动，而是无设备
+ *                      1.2. 原生的sensor驱动位于media/video/mxc/capture/0v5640.c 是非字符设备的驱动，而是无设备
  *                  文件映射出来的驱动(支持V4L2),zebra的手册提供了额外的i2c命令（通过misc设备的ioctl操作瞄准灯和补光灯的
  *                  相关操作);
+ *
  *                  看起来混杂设备为附加到其它设备上的驱动。用于给APP可操作附加设备的接口而做的(因为misc中有file_operation结构).
+ *                      2.如可用在spi设备上的其它功能,spi设备是非字符设备的驱动。
  *
  *        Version:  1.0
  *        Created:  Sunday, September 11, 2016 07:03:47 CST
