@@ -130,7 +130,10 @@ static ssize_t reg_read(struct file *filp, char *buffer, size_t count, loff_t *p
      *
      *  1. 发3个信号将会触发3次wait_for_completion,如果没有wait_for..则会保存于内核
      *-----------------------------------------------------------------------------*/
-    wait_for_completion(&done);//状态为D  
+    wait_for_completion(&done);//状态为D 
+    /* 可使用 wait_for_completion_interruptible 表明可被signal 信号唤醒,
+     * 否则只有echo x>/dev/xx 唤醒该任务  
+     */
     printk("str[%s]\n", str);
     printk("<=== %s\n", __func__);
     return 0;

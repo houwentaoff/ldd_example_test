@@ -77,6 +77,23 @@ static int spi_match_device(struct device *dev, struct device_driver *drv)
         spi-max-frequency = <1000000>;
     }    
 }
+/* 如下为spi slave的dts配置,支持slave的驱动并不多，需要自己修改,spi-slave
+ * 自己在spi-probe代码中用 of_property_read_bool(np, "spi-slave");进行解析
+ * 并使用spi_alloc_slave..进行注册.Slave模式下调用ioctl会阻塞（master提供
+ * 时钟,slave无时钟不会推数据出去），并且会有spireset
+ * 操作所以 需自行添加接口
+ */
+&spi1 {   /* spi1 */
+    status = "okay";
+    spi-slave;
+    rx_ready-gpios = <&gpio 11 0>;/*GPIO_ACTIVE_LOW>;*/
+    tx_ready-gpios = <&gpio 22 0>;/*GPIO_ACTIVE_LOW>;*/
+    spidev1:slave@0 {
+        compatible = "test-spi";
+        reg = <0>;
+        spi-max-frequency = <1000000>;
+    };
+};
 ```
 ## 用户态的spi
 ```c
