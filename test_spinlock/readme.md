@@ -8,9 +8,14 @@
 
 ## 需要理解如下问题
 * spinlock的实现使用了上面哪个api
+    preempt_disable：如果不关抢占，若此时有中断到来，在中断处理结束的时候会有调度点检查若丢失调度，会导致失去自旋锁语义（同sleep同义）
 * 为何中断中要间接调用`local_irq_disable`关闭中断
-* 为何spinlock中要先关中断再关抢占
+* 为何spinlock_irq中要先关中断再关抢占
 * 为何spinlock中不允许睡眠
+    自旋和睡眠语义矛盾，若睡眠后因调度切换新的任务再次调用该自旋锁会导致死锁。
+## 自旋锁的实现
+* lock使用`wfe`和tickets.next/owner 避免抢不到lock的永远抢不到锁。
+* unlock使用sev指令唤醒因wfe进行standby睡眠的核，其中next不等于当前的owner的core唤醒后则继续standby，只有相等的才真正获取锁。
 
 ## 打过rt补丁的系统中的spinlock的不同之处
 * rt是允许抢占的系统，在spinlock的实现中可以看到如果获取不到锁此处便是一个抢占点，优先级高的中断便可以强势插入嵌套。
