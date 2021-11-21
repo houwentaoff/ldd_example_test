@@ -1,3 +1,21 @@
+# 自旋锁实现原理
+
+## armv8 实现如下
+### 保证独占的exclusive 指令
+LDXR Wt, [base{,#0}]
+Load Exclusive Register (32-bit): loads a word from memory addressed by base to Wt. Records the
+physical address as an exclusive access.
+LDXR Xt, [base{,#0}]
+Load Exclusive Register (64-bit): loads a doubleword from memory addressed by base to Xt. Records
+the physical address as an exclusive access
+#### exclusive原理
+状态open 和 exclusive
+### 保证公平性的ticket
+
+### 汇编代码如下
+
+
+
 # 理解中断
 
 ## 理解如下3个API
