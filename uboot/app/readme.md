@@ -1,7 +1,15 @@
 # uboot启动裸机程序
 
-## 如何测试
+## 选用编译器
+* AArch64 ELF bare-metal target (aarch64-none-elf) :`https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-a/downloads`
+* AArch64 GNU/Linux target (aarch64-none-linux-gnu) : 同上
 
+## 汇编参考
+* 汇编ref -> `https://developer.arm.com/documentation/102438/0100/Learning-about-assembly-language`
+* armv8指令参考 `https://developer.arm.com/architectures/instruction-sets/base-isas/a64` 
+     -> learn more `https://developer.arm.com/documentation/ddi0596/2021-12/Base-Instructions`
+
+## 如何测试
 1. `make`
 3. `uboot: loady txt-sections `
 2. `uboot: go main.addr (Entry point address,asm中的main函数地址)`

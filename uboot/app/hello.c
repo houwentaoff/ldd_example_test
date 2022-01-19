@@ -27,7 +27,10 @@ static int b=0x0;
 static int c;
 int d= 0x34;
 int e;
-
+void _exit(int status)
+{
+    (void *)(status);
+}
 int test(char *p)
 {
     int i = 0;
