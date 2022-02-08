@@ -114,7 +114,10 @@ static ssize_t value_store(struct kobject *kobj, struct kobj_attribute *attr,
     mstime = stime *HZ/1000;//s HZ-> ms 
     timeperiod = mstime;
     printk("jiffies = %u/s.\n", stime);
-    mod_timer(&my_timer, jiffies + mstime);
+
+    #define S2JIFFS(x)  (x*HZ)
+    
+    mod_timer(&my_timer, jiffies + S2JIFFS(stime));
     printk("finish.\n");
     return count;
 }
@@ -174,7 +177,7 @@ static int __init example_init(void)
         printk("[test sysfs]: sysfs create group fail.\n");
     }
     timer_setup(&my_timer, timer_func, 0);
-    //需要使用add或者Mod加入内核的全局定时器链 
+    //需要使用add或者Mod加入内核的全局定时器链,定时器才会生效
 
     return retval;
 }

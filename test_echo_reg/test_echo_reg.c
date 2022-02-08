@@ -43,19 +43,45 @@ struct testdata{
     int b;
     int c;
 };
+#define TEST_IOC_MAGIC          'a'
+
+#define TEST_IOC_WRITE          _IO(TEST_IOC_MAGIC, 10)
+#define TEST_IOC_READ           _IO(TEST_IOC_MAGIC, 11)
+
 
 static int reg_open(struct inode *inode, struct file *filp);
 static ssize_t reg_read(struct file *filp, char *buffer, size_t count, loff_t *ppos);
 static ssize_t reg_write(struct file *file,const char __user *buf, size_t count, loff_t *ppos);
-
+static long reg_ioctl(
+	       struct file *filp, unsigned int cmd, unsigned long arg);
 static int release(struct inode *in, struct file *fp);
 static struct file_operations reg_read_ops = {
       .owner   =  THIS_MODULE,
       .open    =  reg_open,
       .read    =  reg_read,
       .write   =  reg_write, 
+      .unlocked_ioctl = reg_ioctl,
       .release = release,
 };
+static long reg_ioctl(
+         struct file *filp, unsigned int cmd, unsigned long arg)
+{
+    int retval = 0;
+    u32 tmp=0;
+    
+    switch (cmd){
+    case TEST_IOC_WRITE:
+        retval = get_user(tmp, (__u8 __user *)arg);
+        printk("user:[0x%x]\n", tmp);
+        break;
+    case TEST_IOC_READ:
+        retval = put_user(0x1, (__u8 __user *)arg);
+        break;
+    default:
+        break;
+    }
+    return retval;
+}
 
 static int release(struct inode *in, struct file *fp)
 {
@@ -132,6 +158,57 @@ static ssize_t reg_read(struct file *filp, char *buffer, size_t count, loff_t *p
     printk("<=== %s a[%d]b[%d]c[%d]\n", __func__, pri->a, pri->b, pri->c);
     return 0;
 }
+struct test_data{
+    struct device *dev;
+    spinlock_t lock;
+};
+struct test_data xxx={0};
+static int foo = 0;
+
+static ssize_t foo_show(struct kobject *kobj, struct kobj_attribute *attr,
+    char *buf)
+{
+      return sprintf(buf, "%d\n", foo);
+}
+
+static ssize_t foo_store(struct kobject *kobj, struct kobj_attribute *attr,
+      const char *buf, size_t count)
+{
+     sscanf(buf, "%du", &foo);
+     printk("foo = %d.\n",foo);
+
+     foo = foo -1;
+
+     if  (foo < 0 || foo > 1)
+     {
+           printk("input foo error. foo=%d.\n",foo);
+           return 0;
+     }
+      
+     printk("finish.\n");
+     return count;
+}
+
+static DEVICE_ATTR(value, S_IWUSR | S_IRUGO, foo_show, foo_store);
+
+/*
+ * Create a group of attributes so that we can create and destroy them all
+ * at once.
+ */
+static struct attribute *attrs[] = {
+      &dev_attr_value.attr,
+      NULL, /* need to NULL terminate the list of attributes */
+};
+
+/*
+ * An unnamed attribute group will put all of the attributes directly in
+ * the kobject directory.  If we specify a name, a subdirectory will be
+ * created for the attributes with the directory being the name of the
+ * attribute group.
+ */
+static struct attribute_group attr_group = {
+      .attrs = attrs,
+};
 
 static int reg_init(void)
 {
@@ -178,8 +255,10 @@ static int reg_init(void)
         goto out_chrdev;
     }
 
-    device_create(housir_class, NULL, MKDEV(major, 0), NULL,
+    xxx.dev = device_create(housir_class, NULL, MKDEV(major, 0), NULL,
                   "housir_major%d", 0);    
+    dev_set_drvdata(xxx.dev, xxx);
+    result = sysfs_create_group(&xxx.dev->kobj, &attr_group);
 
     printk("<=== %s\n", __func__);
     return 0;
