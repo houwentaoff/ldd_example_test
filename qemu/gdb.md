@@ -85,8 +85,12 @@ enable nfs client, e1000e, nfs on rootfs
 * `objdump -DS a.out |less` 程序跑飞了，用该命令和PC指针查看跑飞的地址
 
 ### eg
-`[<c14a18f3>] ? common_interrupt+0x33/0x38` 0x33:相对common_interrupt的偏移地址, 0x38:函数总大小
-
+1. `[<c14a18f3>] ? common_interrupt+0x33/0x38` 0x33:相对common_interrupt的偏移地址, 0x38:函数总大小
+2. `[  120.426651] PC is at hdcp_enable_write+0x84/0xb8
+    [  120.427075] LR is at hdcp_enable_write+0x7c/0xb8`
+    + 找到hdcp_enable_write函数地址 `nm vmlinux | grep hdcp_enable_write`
+    + 使用`addr2line -e vmlinux [hdcp_enable_write function addr + 0x84]`输出PC指针代码行号
+    
 ### 退出qemu
 
 `Ctrl-a x组合键可以退出qemu`
