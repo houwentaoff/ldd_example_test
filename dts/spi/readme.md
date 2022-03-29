@@ -203,12 +203,12 @@ static int spi_write_then_read(int fd,
     status = "okay";
 /*下文可以发现 都用到了spi1.0 这种情况会在dts解析生成设备文件的时候，先后进行，ad1234会提示无法注册进设备因reg一样*/
     spidev0: spi@0 {           
-        compatible = "spidev"; 
+        compatible = "spidev"; /* 匹配spidev 生成 /dev/spi1.0 这种文件 */
         reg = <0>;
         spi-max-frequency = <1000000>;
     };
     ad1234:ad1234@0{
-        compatible = "adi,adrv9009";
+        compatible = "adi,adrv9009"; /* 匹配自己写的 adi,adrv9009驱动，此时reg 有用否? */
         spi-max-frequency = <1000000>;
         reg = <0>;
     }
