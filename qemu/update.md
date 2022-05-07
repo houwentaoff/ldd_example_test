@@ -9,7 +9,10 @@
 # 打rt补丁
  `cd $KDIR`     
  `while read line do echo $line ;patch -p1 < ../patches/$line; done <../patches/series`  
- 
+
+# 内核编译
+`make O=../build -j8`
+
 # 内核升级
 `make modules_install`升级驱动  
 `make install` 升级内核
