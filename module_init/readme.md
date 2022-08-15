@@ -1,7 +1,7 @@
 # 模块初始化宏module_init(aabbcc);
 
 该宏内核一个模块中只能使用一次，存在`module_spi_driver(ad9523_driver);`的不能使用,原因为一个模块初始化函数只允许一个，而
-`module_spi_driver` `module_i2c_driver`其中展开后如下，已经调用了module_init.
+`module_spi_driver` `module_i2c_driver`其中展开后如下，module_platform_driver()也同module_spi_driver一样;已经调用了module_init.
 spi.h
 ```c
 #define module_spi_driver(__spi_driver) \
@@ -34,3 +34,7 @@ module_exit(aaa_exit);
 ```
 # init中不能调用哪些函数
 `kernel_restart` 此种类型api会调用每个驱动的shutdown,会死锁?
+
+# 模块中必须添加的部分
+`MODULE_LICENSE("GPL");` // 去掉会导致无法使用行如spi_sync等API
+如果是导出的符号 `EXPORT_SYMBOL_GPL(testfunc) EXPORT_SYMBOL(testvar);` 也是必须要有的，否则会导致符号不能识别
