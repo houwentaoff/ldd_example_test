@@ -59,9 +59,49 @@ Target options  ---> Target Architecture Variant (cortex-A72) ---> cortex-A72
 
 # GUI界面
 * 使用目录中的.guiconfig 文件是可以进行图形显示的，挂载/移植上buildroot中的rootfs后，首先需要使用buildroot中的./target/usr/bin/modetest 进行条纹测试，用来测试drm 是否正常，正常后进进行下列步骤
-* modetest可以使用后，就可以使用libdrm app进行显示(test_drm/test_drm.c)也可以用ffmpeg中的ffplay进行显示图像，若用ffplay显示需要将ffplay中的代码进行细微修改，补丁如下
+* modetest可以使用后，就可以使用libdrm app进行显示(test_drm/test_drm.c)也可以用ffmpeg中的ffplay进行显示图像，若用ffplay显示需要将ffplay中的代码进行细微修改，补丁如下，rgb屏为800x480大小
 ```ffplay.diff
-
+--- ffmpeg-4.2.4.back/fftools/ffplay.c  2020-07-09 17:17:46.000000000 +0800
++++ ffmpeg-4.2.4/fftools/ffplay.c  2022-08-13 19:24:18.548355221 +0800
+@@ -310,8 +310,8 @@
+ static AVInputFormat *file_iformat;
+ static const char *input_filename;
+ static const char *window_title;
+-static int default_width  = 640;
+-static int default_height = 480;
++static int default_width  = 800;//640;
++static int default_height = 480;//480;
+ static int screen_width  = 0;
+ static int screen_height = 0;
+ static int screen_left = SDL_WINDOWPOS_CENTERED;
+@@ -844,6 +844,8 @@
+         int pitch;
+         if (*texture)
+             SDL_DestroyTexture(*texture);
++        //new_format = SDL_PIXELFORMAT_RGBA8888;
++        printf("=>%s %d new_format[0x%x]\n", __func__, __LINE__, new_format);
+         if (!(*texture = SDL_CreateTexture(renderer, new_format, SDL_TEXTUREACCESS_STREAMING, new_width, new_height)))
+             return -1;
+         if (SDL_SetTextureBlendMode(*texture, blendmode) < 0)
+@@ -909,6 +911,8 @@
+     Uint32 sdl_pix_fmt;
+     SDL_BlendMode sdl_blendmode;
+     get_sdl_pix_fmt_and_blendmode(frame->format, &sdl_pix_fmt, &sdl_blendmode);
++    printf("=>%s line[%d]frame->format[0x%x] sdl_pix_fmt[0x%x]\n",
++                __func__, __LINE__, frame->format, sdl_pix_fmt);
+     if (realloc_texture(tex, sdl_pix_fmt == SDL_PIXELFORMAT_UNKNOWN ? SDL_PIXELFORMAT_ARGB8888 : sdl_pix_fmt, frame->width, frame->height, sdl_blendmode, 0) < 0)
+         return -1;
+     switch (sdl_pix_fmt) {
+@@ -3734,6 +3738,9 @@
+             flags |= SDL_WINDOW_BORDERLESS;
+         else
+             flags |= SDL_WINDOW_RESIZABLE;
++        printf("tom =>%s line[%d]default_width[%d]default_height[%d]flags[%d] \n",
++                    __func__, __LINE__, default_width, default_height, flags);
++        flags = SDL_WINDOW_FULLSCREEN;
+         window = SDL_CreateWindow(program_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, default_width, default_height, flags);
+         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+         if (window) {
 ```
 * 命令：`./ffplay vd80-17224-1c_9-1-21_7_22pm.mp4` ffplay播放mp4文件
 
