@@ -56,3 +56,15 @@ Target options  ---> Target Architecture Variant (cortex-A72) ---> cortex-A72
  146     $(AR) cr $@ $(PHP_GLOBAL_OBJS:.lo=.o) $(PHP_SAPI_OBJS:.lo=.o) $(PHP_FRAMEWORKS) && cp $@ libs/libphp$(PHP_MAJOR_VERSION).so 
 ```
 * 手动使用`make libs/libphp7.bundle` 则会生成`*.so`.
+
+# GUI界面
+* 使用目录中的.guiconfig 文件是可以进行图形显示的，挂载/移植上buildroot中的rootfs后，首先需要使用buildroot中的./target/usr/bin/modetest 进行条纹测试，用来测试drm 是否正常，正常后进进行下列步骤
+* modetest可以使用后，就可以使用libdrm app进行显示(test_drm/test_drm.c)也可以用ffmpeg中的ffplay进行显示图像，若用ffplay显示需要将ffplay中的代码进行细微修改，补丁如下
+```ffplay.diff
+
+```
+* 命令：`./ffplay vd80-17224-1c_9-1-21_7_22pm.mp4` ffplay播放mp4文件
+
+
+
+
