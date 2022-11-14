@@ -151,7 +151,7 @@ clean:
 
 ## buildroot在android上的使用
 . `target.tar.gz`为`buildroot`目录下的rootfs打包文件. 需要上传到`/system`中解压
-. super.img中需要修改生成如下 `/system/buildrootlib /system/buildrootlib64 /system/buildrootusr /system/buildroottmp`4个软连接
+. super.img中需要修改生成如下 `/lib -> /system/buildrootlib ; /lib64 -> /system/buildrootlib64; /usr -> /system/buildrootusr /etc- > /system/buildrootetc /tmp -> /system/buildroottmp`5个软连接, `etc`和`tmp`可以不用，buildroot中有些程序运行需要这2个文件夹，如sshd,android上你可使用网络adb 所以buildroot中的sshd也不是必须的
 ```
 adb root
 adb disable-verity
