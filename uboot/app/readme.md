@@ -22,8 +22,9 @@ lds文件中能看到txt段并不死放在开头，提前即可.
 * 已知反汇编中有`_start`部分反汇编代码, 那么是从哪里来的呢?
     通过`map`文件可以看到`_start`符号地址为`/opt/rk3399/linux-sdk/prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu/bin/../aarch64-linux-gnu/libc/usr/lib/crt1.o`
     反汇编该文件就会得到`_start`部分的汇编代码`aarch64-linux-gnu-objdump -S /opt/rk3399/linux-sdk/prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu/bin/../aarch64-linux-gnu/libc/usr/lib/crt1.o > start.S`
-    ```start.S
     
+```start.S
+(start.S)    
 Disassembly of section .text:
 
 0000000000000000 <_start>:
@@ -39,7 +40,7 @@ Disassembly of section .text:
   24:	94000000 	bl	0 <__libc_start_main>
   28:	94000000 	bl	0 <abort>
 
-    ```
+```
 * 同理可以获取到`__libc_start_main` 反汇编
 
 ## 如何将elf转换成bin文件
