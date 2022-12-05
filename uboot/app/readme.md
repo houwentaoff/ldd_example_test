@@ -50,6 +50,7 @@ Disassembly of section .text:
 ## 如何显示main地址
 * 1
 ``` hello.ld
+(hello.ld)
 ENTRY(main) #显示如下的 entry point address
 
 ```
@@ -86,6 +87,7 @@ printf建议使用uboot自身的地址强制赋值使用即可.另外还需注�
 
 ## 全局变量的初始化
 ```hello.c
+(hello.c)
 static int a=0x23;//data段; 通过readelf -s hello.elf |grep ' a' 查看其地址，然后在map文件中查看所属段
 static int b=0x0;//bss段
 static int c;//bss段
