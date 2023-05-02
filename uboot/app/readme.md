@@ -9,10 +9,15 @@
 * armv8指令参考 `https://developer.arm.com/architectures/instruction-sets/base-isas/a64` 
      -> learn more `https://developer.arm.com/documentation/ddi0596/2021-12/Base-Instructions`
 
+## armv8启动参考
+* boot 参考手册 `DAI0527A_baremetal_boot_code_for_ARMv8_A_processors.pdf` -> `https://developer.arm.com/documentation/dai0527/a/?lang=en`
+* armv8 参考手册 `DEN0024A_v8_architecture_PG.pdf` -> `https://developer.arm.com/documentation/den0024/a/?lang=en`
+* armv7 参考手册 `DEN0013D_cortex_a_series_PG.pdf` -> `https://developer.arm.com/documentation/den0013/d/?lang=en`
+
 ## 如何测试
 1. `make`
 3. `uboot: loady txt-sections `
-2. `uboot: go main.addr (Entry point address,asm中的main函数地址)`
+2. `uboot: go main.addr/entry addr. (Entry point address,asm中的main函数地址)`
 
 ## 如何编写ld文件
 `ld --verbose`会打印出默认的lds; lds已经打包进`ld` 程序里面去了
@@ -81,9 +86,11 @@ ELF Header:
   从反汇编asm文件中可以找到main的地址
 
 ## 如何运行
-`go 0x800560` 直接从main启动，由于没有从start.s的_start开始执行汇编所以glibc并没有初始化，构造函数并不能执行，malloc也不能被执行
+* `go 0x800560` 直接从main启动，由于没有从start.s的_start开始执行汇编所以glibc并没有初始化，构造函数并不能执行，malloc也不能被执行
 printf建议使用uboot自身的地址强制赋值使用即可.另外还需注意字符串后面必须加'\0'，都斯因为没有初始化，不过初始化的全局变量还是能正
 常使用
+* 已添加malloc需要实现的函数和printf. `malloc``printf`已可使用
+* 已添加start.s
 
 ## 全局变量的初始化
 ```hello.c
