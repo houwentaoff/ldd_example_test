@@ -18,8 +18,11 @@
  */
 
 
-#include	<stdlib.h>
+#include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+
+#define UART2_BASE 0xff1a0000
 //int __printf(1, 2) tom_printf(const char *fmt, ...);
 int (*tom_printf)(const char *,...);
 static int a=0x23;
@@ -30,23 +33,98 @@ int e;
 void _exit(int status)
 {
     (void *)(status);
+    return;
 }
+ /* :TODO:05/02/2023 02:11:18 PM:hwt: 使用malloc需实现_sbrk */
+void* _sbrk(int increment)
+{
+    extern char end; // From linker script
+    static char* heap_end = &end;
+
+    char* current_heap_end = heap_end;
+    heap_end += increment;
+    return current_heap_end;
+}
+ /* :TODO:End---  */
+ /* :TODO:05/02/2023 01:46:15 PM:hwt: printf 需要重载如下函数才能使用 */
+/*-----------------------------------------------------------------------------
+ *  printf
+ *-----------------------------------------------------------------------------*/
+void uart_putc_polled(char c)
+{  
+#define COM_UART_BASE       UART2_BASE
+#define COM_UART_TSR     ((volatile unsigned int *)(COM_UART_BASE + 0x0014)) 
+#define COM_UART_THR     ((volatile unsigned int *)(COM_UART_BASE + 0x0)) 
+    while((*COM_UART_TSR&0x20) != 0x20);
+        *COM_UART_THR = c;
+}
+int _lseek(int file, int ptr, int dir)
+{
+    return -1;
+}
+int _read(int file, char *ptr, int len)
+{
+ 
+}
+int _fstat(int file)
+{
+    return 0;
+}
+ 
+int _isatty(int fd)
+{
+    return 0;
+}
+int _close(int file)   
+{                      
+    return -1;         
+}
+int _getpid(void)
+{
+  return 1;
+}
+int _kill(int pid, int sig)
+{
+    return -1;
+}
+int _write(int file, char *ptr, int len)
+{
+    int i;
+    for (i = 0; i < len; ++i)
+    {
+        if (ptr[i] == '\n')
+        {
+            uart_putc_polled('\r');
+        }
+        uart_putc_polled(ptr[i]);
+    }
+    return len;
+}
+ /* :TODO:End---  */
+
 int test(char *p)
 {
     int i = 0;
     tom_printf("strlen[%d]\n", strlen(p));
     tom_printf("a[0x%x]b[0x%x] c[0x%x] d[0x%x] e[0x%x]\n", a, b, c, d, e);
+    tom_printf("bss:b[0x%x] c[0x%x] e[0x%x]\n", b, c, e);
     /* Entry point为 main,并没有从start.s初始化C库，所以这些需要初始化堆栈的都会挂掉. */
-#if 0  //挂掉
+#if 1  
+    
+    /*-----------------------------------------------------------------------------
+     *  1. start.s中实现了memset bss,和链接脚本中有.heap的字段即可(heap字段哪里有使用)
+     *  2. c中需要实现_sbrk 在申请的时候堆指针++或者--
+     *  3. 不用初始化c库即可使用malloc
+     *-----------------------------------------------------------------------------*/
     char *ma = malloc(100);
     if (!ma){
-        tom_printf("ma is null\n");
+        tom_printf("malloc is null\n");
     }else{
         tom_printf("malloc successed!\n");
         for (i=0; i<10; i++)
         {
             ma[i] = i&0xff;
-            tom_printf("ma[0x%x]\n", ma[i]);
+            tom_printf("ma[addr[0x%x]:0x%x]\n", ma+i, ma[i]);
         }
 
         memset(ma, 0, 100);
@@ -61,7 +139,7 @@ int test(char *p)
     char *qq = (void *)0x900000;
     memset(qq, 1, 10);
     for (i =0; i<10; i++){
-        tom_printf("qq[0x%x]\n", qq[i]);
+        tom_printf("qq[addr[0x%x0]:0x%x]\n", qq+i, qq[i]);
     }
     return 0;
 }
@@ -72,15 +150,17 @@ int test(char *p)
  * =====================================================================================
  */
 int main ( int argc, char *argv[] )
-//int main (void )
 {
     int i=0;
     char *p = "hello\0";
-    tom_printf = (void *)0x7ef7b6e4;//0x26b6d0;
+    tom_printf = (void *)0x7ff7aac4;//0x7ef7b6e4;//0x26b6d0;
     tom_printf("0x%lx : [%s]\n", p, p);   
     for (i=0; i<5; i++){
         tom_printf("i[%d]\n", i);   
     }
+    printf("这是什么\n");
+    printf("printf[addr:0x%x] this is api printf test! i[%d]\n", &printf, i);
+    printf("float[%f]\n", 1.23);
     test(p);
     return EXIT_SUCCESS;
 }
