@@ -32,8 +32,8 @@ int d= 0x34;
 int e;
 void _exit(int status)
 {
-    (void *)(status);
-    return;
+   // (void *)(status);
+    //return;
 }
  /* :TODO:05/02/2023 02:11:18 PM:hwt: 使用malloc需实现_sbrk */
 void* _sbrk(int increment)
@@ -136,11 +136,13 @@ int test(char *p)
         tom_printf("over 2\n");
     }
 #endif
+#if 0
     char *qq = (void *)0x900000;
     memset(qq, 1, 10);
     for (i =0; i<10; i++){
         tom_printf("qq[addr[0x%x0]:0x%x]\n", qq+i, qq[i]);
     }
+#endif
     return 0;
 }
 /* 

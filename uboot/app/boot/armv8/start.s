@@ -1,12 +1,55 @@
+
+.macro SAVE_X1_X30
+    STP X1,X2, [SP, #-16]!
+    STP X3,X4, [SP, #-16]!
+    STP X5,X6, [SP, #-16]!
+    STP X7,X8, [SP, #-16]!
+    STP X9,X10, [SP, #-16]!
+    STP X11,X12, [SP, #-16]!
+    STP X13,X14, [SP, #-16]!
+    STP X15,X16, [SP, #-16]!
+    STP X17,X18, [SP, #-16]!
+    STP X19,X20, [SP, #-16]!
+    STP X21,X22, [SP, #-16]!
+    STP X23,X24, [SP, #-16]!
+    STP X25,X26, [SP, #-16]!
+    STP X27,X28, [SP, #-16]!
+    STP X29,X30, [SP, #-16]!
+.endm
+
+.macro RESTORE_X1_X30
+    LDP X29,X30, [SP], #16
+    LDP X27,X28, [SP], #16
+    LDP X25,X26, [SP], #16
+    LDP X23,X24, [SP], #16
+    LDP X21,X22, [SP], #16
+    LDP X19,X20, [SP], #16
+    LDP X17,X18, [SP], #16
+    LDP X15,X16, [SP], #16
+    LDP X13,X14, [SP], #16
+    LDP X11,X12, [SP], #16
+    LDP X9,X10, [SP], #16
+    LDP X7,X8, [SP], #16
+    LDP X5,X6, [SP], #16
+    LDP X3,X4, [SP], #16
+    LDP X1,X2, [SP], #16
+.endm
+
 .global tom_start64
 .type tom_start64, "function"
 tom_start64:
+	//ldr x29, =0x900000
+	//mov x28, sp
+	//str x28, [x29]
+
+	SAVE_X1_X30
 /* Initializing exceptions. */
 /* Initializing registers. */
 /* Configuring the MMU and caches. */
 /* Enabling NEON and Floating Point. */
 /* Changing Exception levels. */
 // Initialize the register bank.
+
 	MOV X0, XZR
 	MOV X1, XZR
 	MOV X2, XZR
@@ -38,18 +81,20 @@ tom_start64:
 	MOV X28, XZR
 	MOV X29, XZR
 	MOV X30, XZR
-
+	
+/*
 #define CPU_STACK_SIZE 0x80000
-
+// init sp ,new stack
 // Initialize the stack pointer.
 	ADR X1, __el1_stack_top
 	ADD X1, X1, #4 
 	MRS X2, MPIDR_EL1 
 	AND X2, X2, #0xFF   // X2 == CPU number.
-	MOV X3, #0x80000  //cpu stack size
+	a MOV X3, #0x80000  //cpu stack size
 	MUL X3, X2, X3 // Create separated stack spaces
 	SUB X1, X1, X3 // for each processor
 	MOV SP, X1
+*/
 
 	// Zero the bss
 	ldr x0, =__bss_start__ // Start of block
@@ -62,9 +107,18 @@ tom_start64:
 	bl DebugASM
 	bl main
 	bl DebugASM
-	b exit
-	bl DebugASM
-/* print 1 2 */
+	//b exit
+	//bl DebugASM
+	
+	RESTORE_X1_X30
+
+	//ldr x29, =0x900000
+	//ldr x28, [x29]
+	//MOV SP, x28
+
+    RET
+
+/* print 1 \r \n */
 	.type GetCPUID, "function"
 	.cfi_startproc
 DebugASM:
@@ -75,12 +129,16 @@ DebugASM:
 	mov x2, #49
 	mov x3, #10
 	mov x4, #13
+	mov x0, xzr
 	add x0, x0, #0x30  // 2+'0' -> '2'
-	str x0, [x1]
+	#str x0, [x1]
+	#isb sy
 	str x2, [x1]
+	isb sy
 	str x3, [x1]
+	isb sy
 	str x4, [x1]
-
+	isb sy
 	ret
 	.cfi_endproc
 
