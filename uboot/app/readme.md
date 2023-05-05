@@ -9,6 +9,16 @@
 * armv8指令参考 `https://developer.arm.com/architectures/instruction-sets/base-isas/a64` 
      -> learn more `https://developer.arm.com/documentation/ddi0596/2021-12/Base-Instructions`
 
+## gccc->ds5 IDE 参考
+* gcc迁移为ds5/ads IDE环境时需要参考的文档 `migration_and_compatibility_guide_100068_6.20_00_en.pdf` --> `https://developer.arm.com/documentation/100068/0620/?lang=en`
+* `Image$$ execution region symbols`arm链接器使用的特有符号 `armlink_user_guide_100070_0612_00_en.pdf` --> `https://developer.arm.com/documentation/100070/0612/?lang=en`（配合scatter使用）
+
+## ADS/DS5 Scatter文件
+
+## ds5 简单配置
+
+## ds5 start.s 和 arm-gnu-gcc 中的start.s
+
 ## armv8启动参考
 * boot 参考手册 `DAI0527A_baremetal_boot_code_for_ARMv8_A_processors.pdf` -> `https://developer.arm.com/documentation/dai0527/a/?lang=en`
 * armv8 参考手册 `DEN0024A_v8_architecture_PG.pdf` -> `https://developer.arm.com/documentation/den0024/a/?lang=en`
@@ -16,7 +26,7 @@
 
 ## 如何测试
 1. `make`
-3. `uboot: loady txt-sections `
+3. `uboot: loady txt-sections ` 串口命令loady下载程序 
 2. `uboot: go main.addr/entry addr. (Entry point address,asm中的main函数地址)`
 
 ## 如何编写ld文件
