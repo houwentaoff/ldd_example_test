@@ -1,3 +1,5 @@
+# gnu-gcc 环境下的baremetal
+
 # uboot启动裸机程序
 
 ## 选用编译器
