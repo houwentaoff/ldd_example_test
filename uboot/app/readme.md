@@ -23,8 +23,13 @@
 
 ## armv8启动参考
 * boot 参考手册 `DAI0527A_baremetal_boot_code_for_ARMv8_A_processors.pdf` -> `https://developer.arm.com/documentation/dai0527/a/?lang=en`
-* armv8 参考手册 `DEN0024A_v8_architecture_PG.pdf` -> `https://developer.arm.com/documentation/den0024/a/?lang=en`
+* armv8 参考手册 `DEN0024A_v8_architecture_PG.pdf` -> `https://developer.arm.com/documentation/den0024/a/?lang=en` `DDI0487J_a_a-profile_architecture_reference_manual.pdf` -> `https://developer.arm.com/documentation/ddi0487/ja?lang=en`
 * armv7 参考手册 `DEN0013D_cortex_a_series_PG.pdf` -> `https://developer.arm.com/documentation/den0013/d/?lang=en`
+## armv8 寄存器
+* armv8寄存器 `SysReg_xml_v88A-2021-12.pdf` -> `https://developer.arm.com/documentation/ddi0595/2021-12/?lang=en`
+## armv8 MMU
+* armv8 mmu手册 `learn_the_architecture_-_aarch64_memory_management_guide_101811_0103_00_en.pdf` -> `https://developer.arm.com/documentation/101811/0103/?lang=en` 还有一部分见armv8 手册MMU描述
+MMU寄存器`TTBR0_EL3` `MAIR_EL3` `TCR_EL3` 描述见 `SysReg_xml_v88A-2021-12.pdf`
 
 ## 如何测试
 1. `make`
