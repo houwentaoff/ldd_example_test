@@ -1,0 +1,31 @@
+{"mmucfg":[  
+    {
+    "level":"el3",
+    "granularity":"4k",
+    "map":
+    [
+        {"phy-addr-begin":"0x00000000", "phy-addr-end":"0x5FFFFFFFF", "size": "0x600000000", "virt-begin":"0x00000000", "granularity":"2M", "attr":"cacheable"},
+        {"phy-addr-begin":"0x600000000", "phy-addr-end":"0x60fffffff", "size": "0x10000000", "virt-begin":"0x600000000", "granularity":"4K", "attr":"device"}   
+    ]
+    },
+    {
+    "level":"el2",
+    "granularity":"4k",
+    "map":
+    [
+        {"phy-addr-begin":"0x00000000", "phy-addr-end":"0x5FFFFFFFF", "size": "0x600000000", "virt-begin":"0x00000000", "granularity":"2M", "attr":"uncacheable"},
+        {"phy-addr-begin":"0x600000000", "phy-addr-end":"0x60fffffff", "size": "0x10000000", "virt-begin":"0x600000000", "granularity":"2M", "attr":"device"}   
+    ]
+    },  
+    {
+    "level":"el1",
+    "granularity":"4k",
+    "map":
+    [
+        {"phy-addr-begin":"0x00000000", "phy-addr-end":"0x5FFFFFFFF", "size": "0x600000000", "virt-begin":"0x00000000", "granularity":"2M", "attr":"uncacheable"},
+        {"phy-addr-begin":"0x600000000", "phy-addr-end":"0x60fffffff", "size": "0x10000000", "virt-begin":"0x600000000", "granularity":"2M", "attr":"device"}   
+    ]
+    }   
+]}
+
+ 
