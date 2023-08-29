@@ -22,14 +22,17 @@
 ## ds5 start.s 和 arm-gnu-gcc 中的start.s
 
 ## armv8启动参考
-* boot 参考手册 `DAI0527A_baremetal_boot_code_for_ARMv8_A_processors.pdf` -> `https://developer.arm.com/documentation/dai0527/a/?lang=en`
-* armv8 参考手册 `DEN0024A_v8_architecture_PG.pdf` -> `https://developer.arm.com/documentation/den0024/a/?lang=en` `DDI0487J_a_a-profile_architecture_reference_manual.pdf` -> `https://developer.arm.com/documentation/ddi0487/ja?lang=en`
-* armv7 参考手册 `DEN0013D_cortex_a_series_PG.pdf` -> `https://developer.arm.com/documentation/den0013/d/?lang=en`
+* `boot` 参考手册 `DAI0527A_baremetal_boot_code_for_ARMv8_A_processors.pdf` -> `https://developer.arm.com/documentation/dai0527/a/?lang=en`
+* `armv8` 参考手册 `DEN0024A_v8_architecture_PG.pdf` -> `https://developer.arm.com/documentation/den0024/a/?lang=en` `DDI0487J_a_a-profile_architecture_reference_manual.pdf` -> `https://developer.arm.com/documentation/ddi0487/ja?lang=en`
+* `armv7` 参考手册 `DEN0013D_cortex_a_series_PG.pdf` -> `https://developer.arm.com/documentation/den0013/d/?lang=en`
 ## armv8 寄存器
-* armv8寄存器 `SysReg_xml_v88A-2021-12.pdf` -> `https://developer.arm.com/documentation/ddi0595/2021-12/?lang=en`
+* `armv8`寄存器 `SysReg_xml_v88A-2021-12.pdf` -> `https://developer.arm.com/documentation/ddi0595/2021-12/?lang=en`
 ## armv8 MMU
-* armv8 mmu手册 `learn_the_architecture_-_aarch64_memory_management_guide_101811_0103_00_en.pdf` -> `https://developer.arm.com/documentation/101811/0103/?lang=en` 还有一部分见armv8 手册MMU描述
+* `armv8 mmu`手册 `learn_the_architecture_-_aarch64_memory_management_guide_101811_0103_00_en.pdf` -> `https://developer.arm.com/documentation/101811/0103/?lang=en` 还有一部分见armv8 手册MMU描述
 MMU寄存器`TTBR0_EL3` `MAIR_EL3` `TCR_EL3` 描述见 `SysReg_xml_v88A-2021-12.pdf`
+
+## armv8 gic  
+* `armv8 gic`手册 `IHI0069H_gic_architecture_specification.pdf` -> `https://developer.arm.com/documentation/ihi0069/h/?lang=en`
 
 ## 如何测试
 1. `make`
@@ -101,7 +104,12 @@ ELF Header:
 ```
 * 2
   从反汇编asm文件中可以找到main的地址
-
+## entry point  
+  该符号作用为`t32`或加载器使用，便于将`PC`设置到该值上，若使用`t32` 手动设置`pc`地址或者默认使用`entry point`位置  
+```t32 script
+r.s pc 0x33000000
+go
+```
 ## 如何运行
 * `go 0x800560` 直接从main启动，由于没有从start.s的_start开始执行汇编所以glibc并没有初始化，构造函数并不能执行，malloc也不能被执行
 printf建议使用uboot自身的地址强制赋值使用即可.另外还需注意字符串后面必须加'\0'，都斯因为没有初始化，不过初始化的全局变量还是能正
