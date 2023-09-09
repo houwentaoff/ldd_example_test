@@ -23,6 +23,19 @@
 #include <stdio.h>
 
 #define UART2_BASE 0xff1a0000
+
+#define __stringify_1(x...)    #x
+#define __stringify(x...)    __stringify_1(x)
+/*
+ * Unlike read_cpuid, calls to read_sysreg are never expected to be
+ * optimized away or replaced with synthetic values.
+ */
+#define read_sysreg(r) ({                    \
+    uint64_t __val;                        \
+    asm volatile("mrs %0, " __stringify(r) : "=r" (__val));    \
+    __val;                            \
+})
+
 //int __printf(1, 2) tom_printf(const char *fmt, ...);
 int (*tom_printf)(const char *,...);
 static int a=0x23;
@@ -105,6 +118,11 @@ int _write(int file, char *ptr, int len)
 int test(char *p)
 {
     int i = 0;
+    int currentel = (read_sysreg(CurrentEL) >> 2) & 0x3;
+
+    printf("CurrentEL a: %d\n", currentel);
+    printf("CurrentEL b: %d\n", (read_sysreg(CurrentEL) >> 2) & 0x3);
+
     tom_printf("strlen[%d]\n", strlen(p));
     tom_printf("a[0x%x]b[0x%x] c[0x%x] d[0x%x] e[0x%x]\n", a, b, c, d, e);
     tom_printf("bss:b[0x%x] c[0x%x] e[0x%x]\n", b, c, e);
@@ -145,6 +163,15 @@ int test(char *p)
 #endif
     return 0;
 }
+int test_vector()
+{
+    int ret = 0;
+    int *p = 0xffffffff;
+
+    *p = 123;
+    printf("=>%s \n", __func__);
+    return ret;
+}
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  main
@@ -160,9 +187,10 @@ int main ( int argc, char *argv[] )
     for (i=0; i<5; i++){
         tom_printf("i[%d]\n", i);   
     }
-    printf("这是什么\n");
+    //printf("这是什么\n");
     printf("printf[addr:0x%x] this is api printf test! i[%d]\n", &printf, i);
     printf("float[%f]\n", 1.23);
     test(p);
+    test_vector();
     return EXIT_SUCCESS;
 }

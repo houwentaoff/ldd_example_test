@@ -15,19 +15,27 @@ VPATH               +=  boot/armv8/
 
 all:hello.elf hello.bin
 
+OBJ_DIR 			?= obj
 
-A_BOOT              ?=  start.o
-AOBJS_BOOT          ?=  $(A_BOOT)  
+A_BOOT              ?=  vector.o start.o
+AOBJS_BOOT          ?=  $(addprefix $(OBJ_DIR)/, $(A_BOOT))
 
 
 AFLAGS              += $(DEBUG_FLAGS) $(INC_PATH) $(AFLAGS_EXTRA) --MD $@.d
+CFLAGS 				?= -g -O0
 
 
-$(OBJ_DIR)/%.o: %.s | $(OOPREREQS)
-	$(call quiet,AS) $(AS) $(AFLAGS) -o $@ $< 
+$(OBJ_DIR):
+	mkdir -p $@
 
+#opt as不支持宏 include操作 还有debug选项
+$(OBJ_DIR)/%.o: %.S $(OBJ_DIR) | $(OOPREREQS)
+	$(call quiet,AS) $(AS) $(AFLAGS)  -o $@ $< 
+#debug
+$(OBJ_DIR)/%.o: %.s $(OBJ_DIR) | $(OOPREREQS)
+	$(call quiet,CC) $(CC) -c $(CFLAGS)  -o $@ $< 
 
-hello.elf:hello.o $(AOBJS_BOOT)
+hello.elf:$(OBJ_DIR)/hello.o $(AOBJS_BOOT)
 	-@#$(CC) -Ttext=0x800000 $< -o $@   -static -Wl,-Map=$@.map
 	-@#$(CC) -T app.ld $< -o $@   -static -Wl,-Map=$@.map
 	-@#$(CC) -T appgcc.ld $< -o $@   -static -Wl,-Map=$@.map
@@ -37,12 +45,13 @@ hello.elf:hello.o $(AOBJS_BOOT)
 hello.bin:hello.elf
 	$(OBJCOPY) -O binary -R .note -R .comment -S --gap-fill=0xff  $^  $@
 	$(READELF) -h $^
+	-@du -hs $@
 
-%.o:%.c
+$(OBJ_DIR)/%.o:%.c $(OBJ_DIR)
 	$(CC) -g -c -O0 $(CFLAGS) $< -o $@
 
 install:
 	install -v hello.bin ~/a
 
 clean:
-	rm *.o hello *.elf *.map *.asm hello.bin -rf
+	rm *.o hello *.elf *.map *.asm hello.bin obj *.d -rf

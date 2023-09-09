@@ -35,9 +35,21 @@
     LDP X1,X2, [SP], #16
 .endm
 
+.global vector_table_el1
+.global vector_table_el2
+.global vector_table_el3
+
 .global tom_start64
 .type tom_start64, "function"
 tom_start64:
+// Initialize vector.
+//	LDR X1, = vector_table_el2
+//	MSR VBAR_EL3, X1
+	LDR X1, = vector_table_el2
+	MSR VBAR_EL2, X1
+	LDR X1, = vector_table_el2
+	MSR VBAR_EL1, X1
+
 	//ldr x29, =0x900000
 	//mov x28, sp
 	//str x28, [x29]
@@ -101,11 +113,13 @@ tom_start64:
 	mov x1, #0             // Fill value
 	ldr x2, =__bss_end__   // End of block
 	sub x2, x2, x0         // Length of block
-	bl  memset
-
+	bl  memset   // 需要mmu(cache)初始化，否则会异常, 这里因为是uboot mmu已经初始化过了,若bootrom后则必须先进行mmu初始化
+	mov x0, #0x1
 	bl DebugASM
+	mov x0, #0x2
 	bl DebugASM
 	bl main
+	mov x0, #0x3
 	bl DebugASM
 	//b exit
 	//bl DebugASM
@@ -118,27 +132,53 @@ tom_start64:
 
     RET
 
+.global DebugASM
 /* print 1 \r \n */
 	.type GetCPUID, "function"
 	.cfi_startproc
 DebugASM:
 #define UART2_BASE      0xff1a0000
 #define	COM_UART_THR	0xff1a0000 //UART2_BASE
-#ldr x1, =COM_UART_THR
+//    ldr x1, =COM_UART_THR
 	ldr x1, =0xff1a0000
-	mov x2, #49
+	//mov x2, #48
 	mov x3, #10
 	mov x4, #13
-	mov x0, xzr
-	add x0, x0, #0x30  // 2+'0' -> '2'
-	#str x0, [x1]
-	#isb sy
-	str x2, [x1]
+	mov x5, xzr
+	add x5, x0, #0x30  // 2+'0' -> '2'
+	str x5, [x1]
+	//isb sy
+	//str x2, [x1]
 	isb sy
 	str x3, [x1]
 	isb sy
 	str x4, [x1]
 	isb sy
 	ret
+	.cfi_endproc
+
+.global DebugASM_ISR
+/* print 1 \r \n */
+	.type DebugASM_ISR, "function"
+	.cfi_startproc
+DebugASM_ISR:
+#define UART2_BASE      0xff1a0000
+#define	COM_UART_THR	0xff1a0000 //UART2_BASE
+//ldr x1, =COM_UART_THR
+	ldr x1, =0xff1a0000
+	//mov x2, #48
+	mov x3, #10
+	mov x4, #13
+	mov x5, xzr
+	add x5, x0, #0x30  // 2+'0' -> '2'
+	str x5, [x1]
+	//isb sy
+	//str x2, [x1]
+	isb sy
+	str x3, [x1]
+	isb sy
+	str x4, [x1]
+	isb sy
+	eret
 	.cfi_endproc
 
