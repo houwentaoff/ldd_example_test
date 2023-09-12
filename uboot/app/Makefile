@@ -17,6 +17,8 @@ LFLAGS 			= -L$(ROOT)/$(THIRD_LIB)
 COBJS               +=  hello.o #$(UNIT).o
 AOBJS 				+= 
 
+VPATH 				+= 
+
 include $(ROOT)/common/rules.mk
 #hello.elf:$(OBJ_DIR)/hello.o $(AOBJS_BOOT)
 	#-@#$(CC) -Ttext=0x800000 $< -o $@   -static -Wl,-Map=$@.map

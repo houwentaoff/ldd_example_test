@@ -1,5 +1,5 @@
-#opt
-(OBJ_DIR)/%.o: %.S | $(OOPREREQS)
+#opt as 支持伪代码incbin -I的路径,gcc不支持,但gcc支持include 含有incbin的使用as
+$(OBJ_DIR)/%.o: %.S | $(OOPREREQS)
 	$(call quiet,AS) $(AS) $(AFLAGS) -o $@ $< 
 #debug
 $(OBJ_DIR)/%.o: %.s | $(OOPREREQS)
