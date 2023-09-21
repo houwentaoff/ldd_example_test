@@ -25,7 +25,7 @@ COBJS_BOOT          ?=  $(C_BOOT)
 
 IFLAGS      		=  $(subst -I, -I$(ROOT), $(IFLAG_BOOT) $(IFLAG_XX) $(IFLAG_RTOS) $(IFLAG_EXTRA))
 
-AFLAGS              += $(DEBUG_FLAGS) $(IFLAGS) $(AFLAG_EXTRA) --MD $@.d
+AFLAGS              += $(IFLAGS) $(AFLAG_EXTRA) --MD $@.d
 CFLAGS  		    += $(IFLAGS) $(DEBUG_FLAGS) $(CFLAG_EXTRA) -O0 -DCORTEXA -D$(target)
 
 OBJS_ALL 			=$(addprefix $(OBJ_DIR)/, $(AOBJS_BOOT) $(AOBJS) $(XX_OBJS) $(COBJS_BOOT) $(COBJS))
