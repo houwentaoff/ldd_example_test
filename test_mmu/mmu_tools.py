@@ -87,8 +87,9 @@ class MMU_tablel3(object):
     TT_S1_ATTR_BLOCK = 0x1
     TT_S1_ATTR_TABLE = 0x3
     TT_S1_ATTR_PAGE  = 0x3
-    rel_addr = 0
-    items=[]
+    # 静态变量 在多次调用的时候 值不会消失，会叠加导致结果不符合期望， 这里修改成self.xxx 随对象消失而消失, 如下__init__中
+    #rel_addr = 0
+    #items=[]
  
     def __init__(self, elf, gran="4K"):
         if False == granularity.__contains__(gran):
@@ -99,6 +100,8 @@ class MMU_tablel3(object):
         self.entry_num = entry_num
  
         self.mmu_table = {"l1":MMU_table() * entry_num, "l2":MMU_table()* (entry_num*entry_num), "l3":MMU_table() * (8*entry_num*entry_num) }
+        self.rel_addr = 0
+        self.items=[]
  
         for table in self.mmu_table["l1"]:
             table.rel_addr = self.rel_addr
