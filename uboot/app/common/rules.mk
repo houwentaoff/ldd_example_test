@@ -20,4 +20,6 @@ $(UNIT).bin:$(UNIT).elf
 
 clean:
 	rm *.o *.bin *.elf *.map *.asm  *.o.d obj -rf 
+	##下面这一句必须加上, VPATH 会搜索所有.o .c .h 依赖, 若其他目录存在obj/*.o 则不会新编译.o 导致使用了其他目录的obj/*.o
+	cd $(ROOT);rm `find ./ -name '*.o'` -rf
 
