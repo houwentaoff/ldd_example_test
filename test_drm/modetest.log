@@ -1,0 +1,1059 @@
+modetest -M vc4 -D 0 -a -s 32@74:1920x1080 -P 173@74:1920x1080 -Ftiles
+
+如下可以出图
+modetest -M i915 -D 0 -a -s 32@48:1920x1080 -P 31@48:1920x1080 -Ftiles 
+
+modetest -p
+trying to open device 'i915'...done
+CRTCs:
+id	fb	pos	size
+48	100	(0,0)	(1920x1080)
+  #0 1920x1080 60.01 1920 1968 2000 2142 1080 1083 1089 1100 141400 flags: phsync, nvsync; type: preferred, driver
+  props:
+	22 ACTIVE:
+		flags: range
+		values: 0 1
+		value: 1
+	23 MODE_ID:
+		flags: blob
+		blobs:
+
+		value:
+			582802008007b007d0075e0800003804
+			3b0441044c0400003c00000009000000
+			48000000313932307831303830000000
+			00000000000000000000000000000000
+			00000000
+	19 OUT_FENCE_PTR:
+		flags: range
+		values: 0 18446744073709551615
+		value: 0
+	24 VRR_ENABLED:
+		flags: range
+		values: 0 1
+		value: 0
+	25 DEGAMMA_LUT:
+		flags: blob
+		blobs:
+
+		value:
+	26 DEGAMMA_LUT_SIZE:
+		flags: immutable range
+		values: 0 4294967295
+		value: 1024
+	27 CTM:
+		flags: blob
+		blobs:
+
+		value:
+	28 GAMMA_LUT:
+		flags: blob
+		blobs:
+
+		value:
+			00000000000000000001000100010000
+	29 GAMMA_LUT_SIZE:
+		flags: immutable range
+		values: 0 4294967295
+		value: 1024
+66	0	(0,0)	(0x0)
+  #0  -nan 0 0 0 0 0 0 0 0 0 flags: ; type: 
+  props:
+	22 ACTIVE:
+		flags: range
+		values: 0 1
+		value: 0
+	23 MODE_ID:
+		flags: blob
+		blobs:
+
+		value:
+	19 OUT_FENCE_PTR:
+		flags: range
+		values: 0 18446744073709551615
+		value: 0
+	24 VRR_ENABLED:
+		flags: range
+		values: 0 1
+		value: 0
+	25 DEGAMMA_LUT:
+		flags: blob
+		blobs:
+
+		value:
+	26 DEGAMMA_LUT_SIZE:
+		flags: immutable range
+		values: 0 4294967295
+		value: 1024
+	27 CTM:
+		flags: blob
+		blobs:
+
+		value:
+	28 GAMMA_LUT:
+		flags: blob
+		blobs:
+
+		value:
+	29 GAMMA_LUT_SIZE:
+		flags: immutable range
+		values: 0 4294967295
+		value: 1024
+84	0	(0,0)	(0x0)
+  #0  -nan 0 0 0 0 0 0 0 0 0 flags: ; type: 
+  props:
+	22 ACTIVE:
+		flags: range
+		values: 0 1
+		value: 0
+	23 MODE_ID:
+		flags: blob
+		blobs:
+
+		value:
+	19 OUT_FENCE_PTR:
+		flags: range
+		values: 0 18446744073709551615
+		value: 0
+	24 VRR_ENABLED:
+		flags: range
+		values: 0 1
+		value: 0
+	25 DEGAMMA_LUT:
+		flags: blob
+		blobs:
+
+		value:
+	26 DEGAMMA_LUT_SIZE:
+		flags: immutable range
+		values: 0 4294967295
+		value: 1024
+	27 CTM:
+		flags: blob
+		blobs:
+
+		value:
+	28 GAMMA_LUT:
+		flags: blob
+		blobs:
+
+		value:
+	29 GAMMA_LUT_SIZE:
+		flags: immutable range
+		values: 0 4294967295
+		value: 1024
+
+Planes:
+id	crtc	fb	CRTC x,y	x,y	gamma size	possible crtcs
+31	48	100	0,0		0,0	0       	0x00000001
+  formats: C8   RG16 XR24 XB24 AR24 AB24 XR30 XB30 YUYV YVYU UYVY VYUY
+  props:
+	8 type:
+		flags: immutable enum
+		enums: Overlay=0 Primary=1 Cursor=2
+		value: 1
+	17 FB_ID:
+		flags: object
+		value: 100
+	18 IN_FENCE_FD:
+		flags: signed range
+		values: -1 2147483647
+		value: -1
+	20 CRTC_ID:
+		flags: object
+		value: 48
+	13 CRTC_X:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	14 CRTC_Y:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	15 CRTC_W:
+		flags: range
+		values: 0 2147483647
+		value: 1920
+	16 CRTC_H:
+		flags: range
+		values: 0 2147483647
+		value: 1080
+	9 SRC_X:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	10 SRC_Y:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	11 SRC_W:
+		flags: range
+		values: 0 4294967295
+		value: 125829120
+	12 SRC_H:
+		flags: range
+		values: 0 4294967295
+		value: 70778880
+	30 IN_FORMATS:
+		flags: immutable blob
+		blobs:
+
+		value:
+			01000000000000000c00000018000000
+			06000000480000004338202052473136
+			58523234584232344152323441423234
+			58523330584233305955595659565955
+			55595659565955593c00000000000000
+			00000000000000000500000000000001
+			3c000000000000000000000000000000
+			0400000000000001fe0f000000000000
+			00000000000000000300000000000001
+			ff0f0000000000000000000000000000
+			0200000000000001ff0f000000000000
+			00000000000000000100000000000001
+			ff0f0000000000000000000000000000
+			0000000000000000
+		in_formats blob decoded:
+			 C8  :  Y_TILED X_TILED LINEAR
+			 RG16:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XR24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 XB24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 AR24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 AB24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 XR30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XB30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YUYV:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YVYU:  Yf_TILED Y_TILED X_TILED LINEAR
+			 UYVY:  Yf_TILED Y_TILED X_TILED LINEAR
+			 VYUY:  Yf_TILED Y_TILED X_TILED LINEAR
+	33 rotation:
+		flags: bitmask
+		values: rotate-0=0x1 rotate-90=0x2 rotate-180=0x4 rotate-270=0x8
+		value: 1
+	34 COLOR_ENCODING:
+		flags: enum
+		enums: ITU-R BT.601 YCbCr=0 ITU-R BT.709 YCbCr=1
+		value: 1
+	35 COLOR_RANGE:
+		flags: enum
+		enums: YCbCr limited range=0 YCbCr full range=1
+		value: 0
+	36 alpha:
+		flags: range
+		values: 0 65535
+		value: 65535
+	37 pixel blend mode:
+		flags: enum
+		enums: None=2 Pre-multiplied=0 Coverage=1
+		value: 0
+38	0	0	0,0		0,0	0       	0x00000001
+  formats: C8   RG16 XR24 XB24 AR24 AB24 XR30 XB30 YUYV YVYU UYVY VYUY
+  props:
+	8 type:
+		flags: immutable enum
+		enums: Overlay=0 Primary=1 Cursor=2
+		value: 0
+	17 FB_ID:
+		flags: object
+		value: 0
+	18 IN_FENCE_FD:
+		flags: signed range
+		values: -1 2147483647
+		value: -1
+	20 CRTC_ID:
+		flags: object
+		value: 0
+	13 CRTC_X:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	14 CRTC_Y:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	15 CRTC_W:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	16 CRTC_H:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	9 SRC_X:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	10 SRC_Y:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	11 SRC_W:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	12 SRC_H:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	30 IN_FORMATS:
+		flags: immutable blob
+		blobs:
+
+		value:
+			01000000000000000c00000018000000
+			06000000480000004338202052473136
+			58523234584232344152323441423234
+			58523330584233305955595659565955
+			55595659565955593c00000000000000
+			00000000000000000500000000000001
+			3c000000000000000000000000000000
+			0400000000000001fe0f000000000000
+			00000000000000000300000000000001
+			ff0f0000000000000000000000000000
+			0200000000000001ff0f000000000000
+			00000000000000000100000000000001
+			ff0f0000000000000000000000000000
+			0000000000000000
+		in_formats blob decoded:
+			 C8  :  Y_TILED X_TILED LINEAR
+			 RG16:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XR24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 XB24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 AR24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 AB24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 XR30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XB30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YUYV:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YVYU:  Yf_TILED Y_TILED X_TILED LINEAR
+			 UYVY:  Yf_TILED Y_TILED X_TILED LINEAR
+			 VYUY:  Yf_TILED Y_TILED X_TILED LINEAR
+	40 rotation:
+		flags: bitmask
+		values: rotate-0=0x1 rotate-90=0x2 rotate-180=0x4 rotate-270=0x8
+		value: 1
+	41 COLOR_ENCODING:
+		flags: enum
+		enums: ITU-R BT.601 YCbCr=0 ITU-R BT.709 YCbCr=1
+		value: 1
+	42 COLOR_RANGE:
+		flags: enum
+		enums: YCbCr limited range=0 YCbCr full range=1
+		value: 0
+	43 alpha:
+		flags: range
+		values: 0 65535
+		value: 65535
+	44 pixel blend mode:
+		flags: enum
+		enums: None=2 Pre-multiplied=0 Coverage=1
+		value: 0
+45	0	0	0,0		0,0	0       	0x00000001
+  formats: AR24
+  props:
+	8 type:
+		flags: immutable enum
+		enums: Overlay=0 Primary=1 Cursor=2
+		value: 2
+	17 FB_ID:
+		flags: object
+		value: 0
+	18 IN_FENCE_FD:
+		flags: signed range
+		values: -1 2147483647
+		value: -1
+	20 CRTC_ID:
+		flags: object
+		value: 0
+	13 CRTC_X:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	14 CRTC_Y:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	15 CRTC_W:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	16 CRTC_H:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	9 SRC_X:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	10 SRC_Y:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	11 SRC_W:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	12 SRC_H:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	30 IN_FORMATS:
+		flags: immutable blob
+		blobs:
+
+		value:
+			01000000000000000100000018000000
+			01000000200000004152323400000000
+			01000000000000000000000000000000
+			0000000000000000
+		in_formats blob decoded:
+			 AR24:  LINEAR
+	47 rotation:
+		flags: bitmask
+		values: rotate-0=0x1 rotate-180=0x4
+		value: 1
+49	0	0	0,0		0,0	0       	0x00000002
+  formats: C8   RG16 XR24 XB24 AR24 AB24 XR30 XB30 YUYV YVYU UYVY VYUY
+  props:
+	8 type:
+		flags: immutable enum
+		enums: Overlay=0 Primary=1 Cursor=2
+		value: 1
+	17 FB_ID:
+		flags: object
+		value: 0
+	18 IN_FENCE_FD:
+		flags: signed range
+		values: -1 2147483647
+		value: -1
+	20 CRTC_ID:
+		flags: object
+		value: 0
+	13 CRTC_X:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	14 CRTC_Y:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	15 CRTC_W:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	16 CRTC_H:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	9 SRC_X:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	10 SRC_Y:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	11 SRC_W:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	12 SRC_H:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	30 IN_FORMATS:
+		flags: immutable blob
+		blobs:
+
+		value:
+			01000000000000000c00000018000000
+			06000000480000004338202052473136
+			58523234584232344152323441423234
+			58523330584233305955595659565955
+			55595659565955593c00000000000000
+			00000000000000000500000000000001
+			3c000000000000000000000000000000
+			0400000000000001fe0f000000000000
+			00000000000000000300000000000001
+			ff0f0000000000000000000000000000
+			0200000000000001ff0f000000000000
+			00000000000000000100000000000001
+			ff0f0000000000000000000000000000
+			0000000000000000
+		in_formats blob decoded:
+			 C8  :  Y_TILED X_TILED LINEAR
+			 RG16:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XR24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 XB24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 AR24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 AB24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 XR30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XB30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YUYV:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YVYU:  Yf_TILED Y_TILED X_TILED LINEAR
+			 UYVY:  Yf_TILED Y_TILED X_TILED LINEAR
+			 VYUY:  Yf_TILED Y_TILED X_TILED LINEAR
+	51 rotation:
+		flags: bitmask
+		values: rotate-0=0x1 rotate-90=0x2 rotate-180=0x4 rotate-270=0x8
+		value: 1
+	52 COLOR_ENCODING:
+		flags: enum
+		enums: ITU-R BT.601 YCbCr=0 ITU-R BT.709 YCbCr=1
+		value: 1
+	53 COLOR_RANGE:
+		flags: enum
+		enums: YCbCr limited range=0 YCbCr full range=1
+		value: 0
+	54 alpha:
+		flags: range
+		values: 0 65535
+		value: 65535
+	55 pixel blend mode:
+		flags: enum
+		enums: None=2 Pre-multiplied=0 Coverage=1
+		value: 0
+56	0	0	0,0		0,0	0       	0x00000002
+  formats: C8   RG16 XR24 XB24 AR24 AB24 XR30 XB30 YUYV YVYU UYVY VYUY
+  props:
+	8 type:
+		flags: immutable enum
+		enums: Overlay=0 Primary=1 Cursor=2
+		value: 0
+	17 FB_ID:
+		flags: object
+		value: 0
+	18 IN_FENCE_FD:
+		flags: signed range
+		values: -1 2147483647
+		value: -1
+	20 CRTC_ID:
+		flags: object
+		value: 0
+	13 CRTC_X:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	14 CRTC_Y:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	15 CRTC_W:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	16 CRTC_H:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	9 SRC_X:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	10 SRC_Y:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	11 SRC_W:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	12 SRC_H:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	30 IN_FORMATS:
+		flags: immutable blob
+		blobs:
+
+		value:
+			01000000000000000c00000018000000
+			06000000480000004338202052473136
+			58523234584232344152323441423234
+			58523330584233305955595659565955
+			55595659565955593c00000000000000
+			00000000000000000500000000000001
+			3c000000000000000000000000000000
+			0400000000000001fe0f000000000000
+			00000000000000000300000000000001
+			ff0f0000000000000000000000000000
+			0200000000000001ff0f000000000000
+			00000000000000000100000000000001
+			ff0f0000000000000000000000000000
+			0000000000000000
+		in_formats blob decoded:
+			 C8  :  Y_TILED X_TILED LINEAR
+			 RG16:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XR24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 XB24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 AR24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 AB24:  Yf_TILED_CCS Y_TILED_CCS Yf_TILED Y_TILED X_TILED LINEAR
+			 XR30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XB30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YUYV:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YVYU:  Yf_TILED Y_TILED X_TILED LINEAR
+			 UYVY:  Yf_TILED Y_TILED X_TILED LINEAR
+			 VYUY:  Yf_TILED Y_TILED X_TILED LINEAR
+	58 rotation:
+		flags: bitmask
+		values: rotate-0=0x1 rotate-90=0x2 rotate-180=0x4 rotate-270=0x8
+		value: 1
+	59 COLOR_ENCODING:
+		flags: enum
+		enums: ITU-R BT.601 YCbCr=0 ITU-R BT.709 YCbCr=1
+		value: 1
+	60 COLOR_RANGE:
+		flags: enum
+		enums: YCbCr limited range=0 YCbCr full range=1
+		value: 0
+	61 alpha:
+		flags: range
+		values: 0 65535
+		value: 65535
+	62 pixel blend mode:
+		flags: enum
+		enums: None=2 Pre-multiplied=0 Coverage=1
+		value: 0
+63	0	0	0,0		0,0	0       	0x00000002
+  formats: AR24
+  props:
+	8 type:
+		flags: immutable enum
+		enums: Overlay=0 Primary=1 Cursor=2
+		value: 2
+	17 FB_ID:
+		flags: object
+		value: 0
+	18 IN_FENCE_FD:
+		flags: signed range
+		values: -1 2147483647
+		value: -1
+	20 CRTC_ID:
+		flags: object
+		value: 0
+	13 CRTC_X:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	14 CRTC_Y:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	15 CRTC_W:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	16 CRTC_H:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	9 SRC_X:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	10 SRC_Y:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	11 SRC_W:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	12 SRC_H:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	30 IN_FORMATS:
+		flags: immutable blob
+		blobs:
+
+		value:
+			01000000000000000100000018000000
+			01000000200000004152323400000000
+			01000000000000000000000000000000
+			0000000000000000
+		in_formats blob decoded:
+			 AR24:  LINEAR
+	65 rotation:
+		flags: bitmask
+		values: rotate-0=0x1 rotate-180=0x4
+		value: 1
+67	0	0	0,0		0,0	0       	0x00000004
+  formats: C8   RG16 XR24 XB24 AR24 AB24 XR30 XB30 YUYV YVYU UYVY VYUY
+  props:
+	8 type:
+		flags: immutable enum
+		enums: Overlay=0 Primary=1 Cursor=2
+		value: 1
+	17 FB_ID:
+		flags: object
+		value: 0
+	18 IN_FENCE_FD:
+		flags: signed range
+		values: -1 2147483647
+		value: -1
+	20 CRTC_ID:
+		flags: object
+		value: 0
+	13 CRTC_X:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	14 CRTC_Y:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	15 CRTC_W:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	16 CRTC_H:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	9 SRC_X:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	10 SRC_Y:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	11 SRC_W:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	12 SRC_H:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	30 IN_FORMATS:
+		flags: immutable blob
+		blobs:
+
+		value:
+			01000000000000000c00000018000000
+			04000000480000004338202052473136
+			58523234584232344152323441423234
+			58523330584233305955595659565955
+			5559565956595559fe0f000000000000
+			00000000000000000300000000000001
+			ff0f0000000000000000000000000000
+			0200000000000001ff0f000000000000
+			00000000000000000100000000000001
+			ff0f0000000000000000000000000000
+			0000000000000000
+		in_formats blob decoded:
+			 C8  :  Y_TILED X_TILED LINEAR
+			 RG16:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XR24:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XB24:  Yf_TILED Y_TILED X_TILED LINEAR
+			 AR24:  Yf_TILED Y_TILED X_TILED LINEAR
+			 AB24:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XR30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XB30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YUYV:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YVYU:  Yf_TILED Y_TILED X_TILED LINEAR
+			 UYVY:  Yf_TILED Y_TILED X_TILED LINEAR
+			 VYUY:  Yf_TILED Y_TILED X_TILED LINEAR
+	69 rotation:
+		flags: bitmask
+		values: rotate-0=0x1 rotate-90=0x2 rotate-180=0x4 rotate-270=0x8
+		value: 1
+	70 COLOR_ENCODING:
+		flags: enum
+		enums: ITU-R BT.601 YCbCr=0 ITU-R BT.709 YCbCr=1
+		value: 1
+	71 COLOR_RANGE:
+		flags: enum
+		enums: YCbCr limited range=0 YCbCr full range=1
+		value: 0
+	72 alpha:
+		flags: range
+		values: 0 65535
+		value: 65535
+	73 pixel blend mode:
+		flags: enum
+		enums: None=2 Pre-multiplied=0 Coverage=1
+		value: 0
+74	0	0	0,0		0,0	0       	0x00000004
+  formats: C8   RG16 XR24 XB24 AR24 AB24 XR30 XB30 YUYV YVYU UYVY VYUY
+  props:
+	8 type:
+		flags: immutable enum
+		enums: Overlay=0 Primary=1 Cursor=2
+		value: 0
+	17 FB_ID:
+		flags: object
+		value: 0
+	18 IN_FENCE_FD:
+		flags: signed range
+		values: -1 2147483647
+		value: -1
+	20 CRTC_ID:
+		flags: object
+		value: 0
+	13 CRTC_X:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	14 CRTC_Y:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	15 CRTC_W:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	16 CRTC_H:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	9 SRC_X:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	10 SRC_Y:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	11 SRC_W:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	12 SRC_H:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	30 IN_FORMATS:
+		flags: immutable blob
+		blobs:
+
+		value:
+			01000000000000000c00000018000000
+			04000000480000004338202052473136
+			58523234584232344152323441423234
+			58523330584233305955595659565955
+			5559565956595559fe0f000000000000
+			00000000000000000300000000000001
+			ff0f0000000000000000000000000000
+			0200000000000001ff0f000000000000
+			00000000000000000100000000000001
+			ff0f0000000000000000000000000000
+			0000000000000000
+		in_formats blob decoded:
+			 C8  :  Y_TILED X_TILED LINEAR
+			 RG16:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XR24:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XB24:  Yf_TILED Y_TILED X_TILED LINEAR
+			 AR24:  Yf_TILED Y_TILED X_TILED LINEAR
+			 AB24:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XR30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 XB30:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YUYV:  Yf_TILED Y_TILED X_TILED LINEAR
+			 YVYU:  Yf_TILED Y_TILED X_TILED LINEAR
+			 UYVY:  Yf_TILED Y_TILED X_TILED LINEAR
+			 VYUY:  Yf_TILED Y_TILED X_TILED LINEAR
+	76 rotation:
+		flags: bitmask
+		values: rotate-0=0x1 rotate-90=0x2 rotate-180=0x4 rotate-270=0x8
+		value: 1
+	77 COLOR_ENCODING:
+		flags: enum
+		enums: ITU-R BT.601 YCbCr=0 ITU-R BT.709 YCbCr=1
+		value: 1
+	78 COLOR_RANGE:
+		flags: enum
+		enums: YCbCr limited range=0 YCbCr full range=1
+		value: 0
+	79 alpha:
+		flags: range
+		values: 0 65535
+		value: 65535
+	80 pixel blend mode:
+		flags: enum
+		enums: None=2 Pre-multiplied=0 Coverage=1
+		value: 0
+81	0	0	0,0		0,0	0       	0x00000004
+  formats: AR24
+  props:
+	8 type:
+		flags: immutable enum
+		enums: Overlay=0 Primary=1 Cursor=2
+		value: 2
+	17 FB_ID:
+		flags: object
+		value: 0
+	18 IN_FENCE_FD:
+		flags: signed range
+		values: -1 2147483647
+		value: -1
+	20 CRTC_ID:
+		flags: object
+		value: 0
+	13 CRTC_X:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	14 CRTC_Y:
+		flags: signed range
+		values: -2147483648 2147483647
+		value: 0
+	15 CRTC_W:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	16 CRTC_H:
+		flags: range
+		values: 0 2147483647
+		value: 0
+	9 SRC_X:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	10 SRC_Y:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	11 SRC_W:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	12 SRC_H:
+		flags: range
+		values: 0 4294967295
+		value: 0
+	30 IN_FORMATS:
+		flags: immutable blob
+		blobs:
+
+		value:
+			01000000000000000100000018000000
+			01000000200000004152323400000000
+			01000000000000000000000000000000
+			0000000000000000
+		in_formats blob decoded:
+			 AR24:  LINEAR
+	83 rotation:
+		flags: bitmask
+		values: rotate-0=0x1 rotate-180=0x4
+		value: 1
+modetest -c
+trying to open device 'i915'...done
+Connectors:
+id	encoder	status		name		size (mm)	modes	encoders
+86	85	connected	eDP-1          	340x190		1	85
+  modes:
+	index name refresh (Hz) hdisp hss hse htot vdisp vss vse vtot)
+  #0 1920x1080 60.01 1920 1968 2000 2142 1080 1083 1089 1100 141400 flags: phsync, nvsync; type: preferred, driver
+  props:
+	1 EDID:
+		flags: immutable blob
+		blobs:
+
+		value:
+			00ffffffffffff0009e55d0600000000
+			01190104952213780224109759548e27
+			1e505400000001010101010101010101
+			0101010101013c3780de703814403020
+			360058c21000001a0000000000000000
+			00000000000000000000000000fe0042
+			4f452048460a202020202020000000fe
+			004e5631353646484d2d4e34320a006c
+	2 DPMS:
+		flags: enum
+		enums: On=0 Standby=1 Suspend=2 Off=3
+		value: 0
+	5 link-status:
+		flags: enum
+		enums: Good=0 Bad=1
+		value: 0
+	6 non-desktop:
+		flags: immutable range
+		values: 0 1
+		value: 0
+	4 TILE:
+		flags: immutable blob
+		blobs:
+
+		value:
+	20 CRTC_ID:
+		flags: object
+		value: 48
+	88 Broadcast RGB:
+		flags: enum
+		enums: Automatic=0 Full=1 Limited 16:235=2
+		value: 0
+	89 max bpc:
+		flags: range
+		values: 6 12
+		value: 12
+	90 scaling mode:
+		flags: enum
+		enums: Full=1 Center=2 Full aspect=3
+		value: 3
+92	0	disconnected	HDMI-A-1       	0x0		0	91
+  props:
+	1 EDID:
+		flags: immutable blob
+		blobs:
+
+		value:
+	2 DPMS:
+		flags: enum
+		enums: On=0 Standby=1 Suspend=2 Off=3
+		value: 3
+	5 link-status:
+		flags: enum
+		enums: Good=0 Bad=1
+		value: 0
+	6 non-desktop:
+		flags: immutable range
+		values: 0 1
+		value: 0
+	4 TILE:
+		flags: immutable blob
+		blobs:
+
+		value:
+	20 CRTC_ID:
+		flags: object
+		value: 0
+	93 audio:
+		flags: enum
+		enums: force-dvi=18446744073709551614 off=18446744073709551615 auto=0 on=1
+		value: 0
+	88 Broadcast RGB:
+		flags: enum
+		enums: Automatic=0 Full=1 Limited 16:235=2
+		value: 0
+	94 aspect ratio:
+		flags: enum
+		enums: Automatic=0 4:3=1 16:9=2
+		value: 0
+	95 Colorspace:
+		flags: enum
+		enums: Default=0 SMPTE_170M_YCC=1 BT709_YCC=2 XVYCC_601=3 XVYCC_709=4 SYCC_601=5 opYCC_601=6 opRGB=7 BT2020_CYCC=8 BT2020_RGB=9 BT2020_YCC=10 DCI-P3_RGB_D65=11 DCI-P3_RGB_Theater=12
+		value: 0
+	96 content type:
+		flags: enum
+		enums: No Data=0 Graphics=1 Photo=2 Cinema=3 Game=4
+		value: 0
+	97 max bpc:
+		flags: range
+		values: 8 12
+		value: 12
+	98 Content Protection:
+		flags: enum
+		enums: Undesired=0 Desired=1 Enabled=2
+		value: 0
+modetest -e
+trying to open device 'i915'...done
+Encoders:
+id	crtc	type	possible crtcs	possible clones	
+85	48	TMDS	0x00000007	0x00000001
+91	0	TMDS	0x00000007	0x00000002
+modetest -f
+trying to open device 'i915'...done
+Frame buffers:
+id	size	pitch
+
