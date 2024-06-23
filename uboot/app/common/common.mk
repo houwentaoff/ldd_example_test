@@ -12,13 +12,13 @@ mkobj:
 OBJ_DIR 			 = obj
 OOPREREQS 			+= mkobj $(ALOBJS:.o=.h) $(ALOBJS:.o=.c)
 
-A_BOOT              ?= start.o vector.o 
+A_BOOT              ?= start.o vector.o crash.o
 C_BOOT 				?= 
 
 XXX_OBJS     ?= 
 IFLAG_XXX    ?= -Ixxx/a
 IFLAG_RTOS          ?= -I$(RTOS_DIR)/common_smp/inc   -I$(RTOS_DIR)/ports_smp/cortex_a55_smp/gnu/inc/ 
-IFLAG_BOOT 			?= -Iboot/armv8/ -Iboot/armv8/common -Iboot/common
+IFLAG_BOOT 			?= -Iboot/armv8/ -Iboot/armv8/common -Iboot/common -Iinclude
 
 AOBJS_BOOT          ?=  $(A_BOOT)  
 COBJS_BOOT          ?=  $(C_BOOT)  

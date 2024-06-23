@@ -1,6 +1,7 @@
 .global vector_table_el1
 .global vector_table_el2
 .global vector_table_el3
+.global do_crash
 
 .global DebugASM
 .global DebugASM_ISR
@@ -11,8 +12,10 @@ vector_table_el2:
 curr_el_sp0_sync:
 // The exception handler for the synchronous
 // exception from the current EL using SP0.
-	mov x0, #0x1
-	b DebugASM_ISR
+	//mov x0, #0x1
+	//b DebugASM_ISR
+	ldr x0, =do_crash
+	br x0
 	b .
 .balign 0x80
 curr_el_sp0_irq:
@@ -42,8 +45,10 @@ curr_el_spx_sync:
 // The exception handler for the synchronous
 // exception from the current EL using the
 // current SP.
-	mov x0, #0x9
-	b DebugASM_ISR
+	//mov x0, #0x9
+	//b DebugASM_ISR
+	ldr x0, =do_crash
+	br x0
 	b .
 .balign 0x80
 curr_el_spx_irq:

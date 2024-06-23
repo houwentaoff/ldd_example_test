@@ -15,6 +15,7 @@ DEBUG_FLAGS 		= -g
 LFLAGS 			= -L$(ROOT)/$(THIRD_LIB) 
 
 COBJS               +=  hello.o #$(UNIT).o
+COBJS               +=  crash.o
 AOBJS 				+= 
 
 VPATH 				+= 
