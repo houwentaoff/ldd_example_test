@@ -34,7 +34,8 @@
     LDP X3,X4, [SP], #16
     LDP X1,X2, [SP], #16
 .endm
-
+	.section StartUp, "ax"
+	.balign 4
 .global vector_table_el1
 .global vector_table_el2
 .global vector_table_el3

@@ -9,7 +9,7 @@ $(OBJ_DIR)/%.o:%.c | $(OOPREREQS)
 	$(CC)  -c  $(CFLAGS) $< -o $@
 
 $(UNIT).elf:$(OBJS_ALL) 
-	$(CC) -T $(ROOT)/bare-metal.ld $^ $(LFLAGS) -o $@   -static -Wl,-Map=$@.map
+	$(CC) -T $(ROOT)/bare-metal_opt.ld $^ $(LFLAGS) -o $@   -static -Wl,-Map=$@.map
 	$(OBJDUMP) -S -d $@ > $@.asm
 
 $(UNIT).bin:$(UNIT).elf
