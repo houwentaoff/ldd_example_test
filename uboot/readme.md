@@ -6,7 +6,7 @@
 + 动态获取ip并tftp启动内核  
 `setenv netboot 'dhcp && tftpboot ${netstart} ${kernel_img} && bootm'
 saveenv`
-
+  后续新版的uboot 使用`dhcp 0xc0000000`替换`dhcp&tftpboot` 所使用的变量值为 `serverip=192.168.10.12` `bootfile=image.ub` `netboot=dhcp 0xc0000000` `run netboot`
 + 通过串口下载数据到ddr
 `loady` `crtl a,s`
 
