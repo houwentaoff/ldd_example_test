@@ -105,6 +105,16 @@ Target options  ---> Target Architecture Variant (cortex-A72) ---> cortex-A72
 ```
 * 命令：`./ffplay vd80-17224-1c_9-1-21_7_22pm.mp4` ffplay播放mp4文件
 
+# 非GUI界面
+/proc/cmdline : console=ttyS0,9600n8 earlycon=tomuart,mmio32,0x45000000 mem=4084M root=/dev/ram0 rw init=/linuxrc
+`tomuart`和`drivers/tty/serial/8250/8250_early.c`中的`OF_EARLYCON_DECLARE(tomuart, "snps,dw-apb-uart", early_searial8250_setup)`对应，这里只使用到了device->con->write 可以屏蔽掉device->con->read实现
+dts中uart0打开即可`&uart0{status = "okay";};` 
+dts中的bootargs只有在uboot未传递参数的情况下才会起作用，uboot中的参数设定如下和cmdline一致
+`bootargs=console=ttyS0,9600n8 earlycon=tomuart,mmio32,0x45000000 mem=4084M root=/dev/ram0 rw init=/linuxrc`
+在rootfs中的`dev`目录需执行如下命令`sudo mknod console c  5 1`
+这时你就能将rootfs跑起来，这里面需要的buildroot.its文件见同目录
+
+
 
 
 
