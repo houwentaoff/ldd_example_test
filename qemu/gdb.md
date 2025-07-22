@@ -94,3 +94,10 @@ enable nfs client, e1000e, nfs on rootfs
 ### 退出qemu
 
 `Ctrl-a x组合键可以退出qemu`
+
+### 查看依赖驱动
+* 当eth驱动依赖于gpio，而gpio未准备好时，可使用如下命令查看哪一个驱动未准备好
+`mount -t debugfs none /sys/kernel/debug
+cat /sys/kernel/debug/devices_deferred
+48480000.ethernet	platform: supplier 4600f000.gpio not ready
+`
