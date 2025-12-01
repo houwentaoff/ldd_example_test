@@ -99,8 +99,8 @@ readme.md
 ```
 ## 使用perf产生火焰图
 ### Target:  
-`./perf record  -p 283 -a -g -o a.data  -- sleep 10`
-`./perf script -i a.data  &> a.unfold`
+`./perf record  -p 283 -a -g -o a.data  -- sleep 10`  #10s monitor  
+`./perf script -i a.data  &> a.unfold`  
 
 ### PC:  
 ```
@@ -108,7 +108,7 @@ sudo apt-get install c++filt
 git clone https://github.com/brendangregg/FlameGraph.git
 cd FlameGraph
 ./stackcollapse-perf.pl a.unfold |c++filt &> a.folded
-./flamegraph.pl a.folded  > a.svg
+./flamegraph.pl a.folded  > a.svg  ## 最后生成文件
 ```
 ### 说明
 * 经过上述命令后使用浏览器打开a.svg便可用浏览器打开火焰图文件a.svg，火焰图平顶部分是性能的关键所在
